@@ -67,7 +67,7 @@ resource "google_container_cluster" "gke-cluster" {
     }
   }
 
-  min_master_version = "${var.gke["min_master_version"]}"
+  min_master_version = var.gke["min_master_version"]
 
   network_policy {
     enabled = var.enable_network_policy
@@ -76,7 +76,7 @@ resource "google_container_cluster" "gke-cluster" {
   private_cluster_config {
     enable_private_nodes = true
     enable_private_endpoint = false
-    master_ipv4_cidr_block = "${var.gke["master_ipv4_cidr_block"]}"
+    master_ipv4_cidr_block = var.gke["master_ipv4_cidr_block"]
   }
 
   remove_default_node_pool = true
@@ -105,6 +105,7 @@ resource "google_container_node_pool" "pools" {
       "https://www.googleapis.com/auth/cloud-platform",
     ]
     service_account = var.gke_service_account
+    tags = ["gke-node"]
   }
   initial_node_count = lookup(var.gke_nodepools[count.index], "min_node_count")
   location = var.gke["location"]

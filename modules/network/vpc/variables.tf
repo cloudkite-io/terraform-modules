@@ -3,7 +3,22 @@ variable environment {
   type = "string"
 }
 
-variable "gcp" {
-  description = "Map of Google Cloud Platform specific variables"
-  type = "map"
+variable "project" {
+  description = "The project associated to this network"
+  type = "string"
+}
+
+variable "region" {
+  description = "The region to host the cluster in"
+  type        = string
+}
+
+variable "network-prefix" {
+  description = "A network segment prefix in the VPC network to host the cluster in"
+  type        = string
+}
+
+variable "master_ipv4_cidr_block" {
+  description = "The master ip addresses range"
+  type        = string
 }
