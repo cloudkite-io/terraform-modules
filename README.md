@@ -4,21 +4,18 @@
 
 # Terraform Modules
 
-This repo contains [Terraform](https://www.terraform.io/docs/configuration/modules.html) modules for building, running, and changing part of the infrastructure. 
-We can think about the entire infrastructure as a set of reusable modules.
+This repo contains [Terraform](https://www.terraform.io/docs/configuration/modules.html) modules for building and maintaing cloud infrastructure.
+
+These modules are opinionated based on what we consider good defaults.
 
 ## Repo content
 
 ### Modules:
 
-* [gke](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gke): This folder contains the main implementation 
-for the kubernetes cluster.
-* [gke-service-account](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gke-service-account): Here you will
-find the main implementation of the GCP service account to use with a GKE cluster, and the associated iam binding roles.
-* [network/vpc](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/network/vpc): This folder contains the main
-implementation of the vpc network to host the cluster in.
-* [velero service account](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/velero-service-account): This folder
-contains the main implementation of the GCP service account to use with velero.
+* [gke](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gke): GKE module for Google Compute Platform
+* [gke-service-account](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gke-service-account): Service Account for GKE Nodes 
+* [network/vpc](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/network/vpc): GCP VPC
+* [velero service account](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/velero-service-account): GCP IAM Service Account for [Velero](https://velero.io)
 
 ## License
 
