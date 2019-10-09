@@ -4,8 +4,8 @@
 
 # Terraform Modules
 
-This repo contains [Terraform](https://www.terraform.io) modules for running a Private Kubernetes cluster on [Google Cloud Platform (GCP)](https://cloud.google.com/)
-using [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine/).
+This repo contains [Terraform](https://www.terraform.io/docs/configuration/modules.html) modules for building, running, and changing part of the infrastructure. 
+We can think about the entire infrastructure as a set of reusable modules.
 
 ## Repo content
 
