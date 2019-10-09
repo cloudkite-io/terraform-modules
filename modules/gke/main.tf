@@ -1,5 +1,5 @@
 resource "google_project_service" "container-api" {
-  project = "${var.gcp["project"]}"
+  project = var.gcp["project"]
   service = "container.googleapis.com"
 }
 
@@ -31,7 +31,7 @@ resource "google_container_cluster" "gke-cluster" {
       disabled = ! var.kubernetes_dashboard
     }
     network_policy_config {
-      disabled = ! var.network_policy
+      disabled = var.network_policy_config_disabled
     }
   }
 
@@ -59,7 +59,7 @@ resource "google_container_cluster" "gke-cluster" {
 
   master_authorized_networks_config {
     dynamic "cidr_blocks" {
-      for_each = var.master_authorized_networks_config
+      for_each = var.gke_master_authorized_networks
       content {
         cidr_block    = cidr_blocks.value.cidr_block
         display_name  = cidr_blocks.value.display_name
@@ -80,9 +80,14 @@ resource "google_container_cluster" "gke-cluster" {
   }
 
   remove_default_node_pool = true
+
+  workload_identity_config {
+    identity_namespace = "${var.gcp["project"]}.svc.id.goog"
+  }
 }
 
 resource "google_container_node_pool" "pools" {
+  provider = "google-beta"
   project = var.gcp["project"]
   count = length(var.gke_nodepools)
 
@@ -106,6 +111,10 @@ resource "google_container_node_pool" "pools" {
     ]
     service_account = var.gke_service_account
     tags = ["gke-node"]
+
+    workload_metadata_config {
+      node_metadata = "GKE_METADATA_SERVER"
+    }
   }
   initial_node_count = lookup(var.gke_nodepools[count.index], "min_node_count")
   location = var.gke["location"]
@@ -113,6 +122,7 @@ resource "google_container_node_pool" "pools" {
   lifecycle {
     ignore_changes = [
       "initial_node_count",
+      "name",
       "version",
       "node_config"
     ]
