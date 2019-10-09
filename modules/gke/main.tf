@@ -31,7 +31,7 @@ resource "google_container_cluster" "gke-cluster" {
       disabled = ! var.kubernetes_dashboard
     }
     network_policy_config {
-      disabled = ! var.network_policy
+      disabled = var.network_policy_config_disabled
     }
   }
 
@@ -87,6 +87,7 @@ resource "google_container_cluster" "gke-cluster" {
 }
 
 resource "google_container_node_pool" "pools" {
+  provider = "google-beta"
   project = var.gcp["project"]
   count = length(var.gke_nodepools)
 

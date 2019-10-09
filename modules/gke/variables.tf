@@ -53,10 +53,10 @@ variable "kubernetes_dashboard" {
   default     = false
 }
 
-variable "network_policy" {
+variable "network_policy_config_disabled" {
   type        = bool
   description = "Enable network policy addon."
-  default     = false
+  default = false
 }
 
 variable "gke_services_secondary_range_name" {
@@ -71,7 +71,7 @@ variable "gke_pods_secondary_range_name" {
 
 variable "gke_master_authorized_networks" {
   description = "The networks from which a connection to the master can be established"
-  type        = list(any)
+  type        = "list"
 }
 
 variable "enable_network_policy" {
