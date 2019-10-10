@@ -84,7 +84,8 @@ variable "gke_nodepools" {
   description = "List of maps containing node pools"
 }
 
-variable "gke_service_account" {
-  description = "Service account used for the GKE cluster."
-  type        = string
+variable "service_account_roles" {
+  description = "Additional roles to be added to the service account."
+  type        = list(string)
+  default     = []
 }
