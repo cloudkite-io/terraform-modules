@@ -129,21 +129,6 @@ resource "google_container_node_pool" "pools" {
   }
 }
 
-resource "google_compute_firewall" "cert-manager-admission-webhook" {
-  depends_on = ["google_container_node_pool.pools"]
-
-  name = "cert-manager-admission-webhook"
-  network = var.network
-
-  allow {
-    protocol = "tcp"
-    ports    = ["6443"]
-  }
-
-  source_ranges = [var.gke["master_ipv4_cidr_block"]]
-  target_service_accounts = [google_service_account.gke_service_account.email]
-}
-
 resource "google_service_account" "gke_service_account" {
   project      = var.gcp["project"]
   account_id   = "${google_container_cluster.gke-cluster.name}-sa"
@@ -154,8 +139,7 @@ locals {
   all_service_account_roles = concat(var.service_account_roles, [
     "roles/logging.logWriter",
     "roles/monitoring.editor",
-    "roles/cloudtrace.agent",
-    "roles/container.clusterAdmin"
+    "roles/cloudtrace.agent"
   ])
 }
 
