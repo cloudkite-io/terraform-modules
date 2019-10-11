@@ -109,7 +109,7 @@ resource "google_container_node_pool" "pools" {
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
     ]
-    service_account = var.gke_service_account
+    service_account = google_service_account.gke_service_account.email
     tags = ["gke-node"]
 
     workload_metadata_config {
@@ -129,17 +129,24 @@ resource "google_container_node_pool" "pools" {
   }
 }
 
-resource "google_compute_firewall" "cert-manager-admission-webhook" {
-  depends_on = ["google_container_node_pool.pools"]
+resource "google_service_account" "gke_service_account" {
+  project      = var.gcp["project"]
+  account_id   = "${google_container_cluster.gke-cluster.name}-sa"
+  display_name = "${google_container_cluster.gke-cluster.name} Service Account"
+}
 
-  name = "cert-manager-admission-webhook"
-  network = var.network
+locals {
+  all_service_account_roles = concat(var.service_account_roles, [
+    "roles/logging.logWriter",
+    "roles/monitoring.editor",
+    "roles/cloudtrace.agent"
+  ])
+}
 
-  allow {
-    protocol = "tcp"
-    ports    = ["6443"]
-  }
+resource "google_project_iam_member" "service_account-roles" {
+  for_each = toset(local.all_service_account_roles)
 
-  source_ranges = [var.gke["master_ipv4_cidr_block"]]
-  target_service_accounts = [var.gke_service_account]
+  project = var.gcp["project"]
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
 }
