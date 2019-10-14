@@ -32,3 +32,13 @@ resource "google_service_account_iam_binding" "velero_service_iam_binding" {
     "serviceAccount:${var.project}.svc.id.goog[velero/velero-server]"
   ]
 }
+
+# Create the velero backups bucket
+resource "google_storage_bucket" "backups" {
+  name = var.backups_bucket_name
+  location = var.backups_bucket_location
+}
+
+resource "google_service_account_key" "velero" {
+  service_account_id = google_service_account.velero_service_account.id
+}

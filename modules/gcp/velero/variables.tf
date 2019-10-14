@@ -19,3 +19,13 @@ variable "service_account_roles" {
   type        = list(string)
   default     = []
 }
+
+variable "backups_bucket_name" {
+  description = "The name of the bucket used by velero to storage backups."
+  type        = string
+}
+
+variable "backups_bucket_location" {
+  description = "The location of the bucket used by velero to storage backups."
+  type        = string
+}

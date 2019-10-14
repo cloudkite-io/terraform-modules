@@ -4,7 +4,7 @@
 
 # Terraform Modules
 
-This repo contains [Terraform](https://www.terraform.io/docs/configuration/modules.html) modules for building and maintaing cloud infrastructure.
+This repo contains [Terraform](https://www.terraform.io/docs/configuration/modules.html) modules for building and maintaining cloud infrastructure.
 
 These modules are opinionated based on what we consider good defaults.
 
@@ -12,10 +12,9 @@ These modules are opinionated based on what we consider good defaults.
 
 ### Modules:
 
-* [gke](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gke): GKE module for Google Compute Platform
-* [gke-service-account](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gke-service-account): Service Account for GKE Nodes 
-* [network/vpc](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/network/vpc): GCP VPC
-* [velero service account](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/velero-service-account): GCP IAM Service Account for [Velero](https://velero.io)
+* [gke](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/gke): GKE module for Google Compute Platform
+* [vpc](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/vpc): GCP VPC
+* [velero](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/velero): GCP IAM Service Account and backups GCP Storage bucket for [Velero](https://velero.io)
 
 ## License
 
