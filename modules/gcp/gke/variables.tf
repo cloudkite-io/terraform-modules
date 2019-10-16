@@ -77,6 +77,7 @@ variable "gke_master_authorized_networks" {
 variable "enable_network_policy" {
   description = "Whether to enable Kubernetes NetworkPolicy on the master. It is required to be enabled to be used on Nodes."
   type        = bool
+  default = true
 }
 
 variable "gke_nodepools" {
