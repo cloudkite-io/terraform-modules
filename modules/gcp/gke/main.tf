@@ -150,3 +150,19 @@ resource "google_project_iam_member" "service_account-roles" {
   role    = each.value
   member  = "serviceAccount:${google_service_account.gke_service_account.email}"
 }
+
+resource "google_compute_firewall" "cert-manager-webhook-firewall" {
+  name = "${var.region}-${var.environment}-cert-manager-webhook-firewall-rule"
+  network = var.network
+
+  allow {
+    protocol = "tcp"
+    ports = ["6443"]
+  }
+
+  direction = "INGRESS"
+  source_ranges = [
+    var.master_ipv4_cidr_block
+  ]
+  target_tags = ["gke-node"]
+}

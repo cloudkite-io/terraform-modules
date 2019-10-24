@@ -17,8 +17,3 @@ variable "network-prefix" {
   description = "A network segment prefix in the VPC network to host the cluster in"
   type        = string
 }
-
-variable "master_ipv4_cidr_block" {
-  description = "The master ip addresses range"
-  type        = string
-}

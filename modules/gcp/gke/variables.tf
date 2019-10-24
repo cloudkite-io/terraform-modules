@@ -13,6 +13,11 @@ variable "gke" {
   type = "map"
 }
 
+variable "region" {
+  description = "The region to host the cluster in"
+  type        = string
+}
+
 variable "network" {
   type        = string
   description = "The VPC network to host the cluster in (required)."
@@ -21,6 +26,11 @@ variable "network" {
 variable "subnetwork" {
   type        = string
   description = "The subnetwork to host the cluster in (required)."
+}
+
+variable "master_ipv4_cidr_block" {
+  description = "The master ip addresses range"
+  type        = string
 }
 
 variable "logging_service" {
