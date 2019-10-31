@@ -1,3 +1,8 @@
+variable "project" {
+  description = "The project ID to host the cluster in (required)"
+  type = "string"
+}
+
 variable environment {
   description = "The environment for <development|production> workloads."
   type = "string"
@@ -20,7 +25,8 @@ variable "region" {
 
 variable "network" {
   type        = string
-  description = "The VPC network to host the cluster in (required)."
+  description = "The VPC network to host the cluster in (required). If this isn't passed in, the module tries projects/{{project}}/global/networks/{var.environment}-vpc"
+  default = ""
 }
 
 variable "subnetwork" {

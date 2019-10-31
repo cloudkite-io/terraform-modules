@@ -4,7 +4,7 @@ variable environment {
 }
 
 variable "project" {
-  description = "The project associated to this network"
+  description = "The project ID to host the cluster in (required)"
   type = "string"
 }
 

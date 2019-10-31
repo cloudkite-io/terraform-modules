@@ -1,3 +1,4 @@
+
 resource "google_project_service" "container-api" {
   project = var.gcp["project"]
   service = "container.googleapis.com"
@@ -12,7 +13,7 @@ resource "google_container_cluster" "gke-cluster" {
   location             = var.gke["location"]
   name               = "${var.environment}-gke"
 
-  network          = var.network
+  network          = var.network == "" ? "projects/${var.project}/global/networks/${var.environment}-vpc" : var.network
   subnetwork       = var.subnetwork
 
   # Stackdriver
@@ -153,7 +154,7 @@ resource "google_project_iam_member" "service_account-roles" {
 
 resource "google_compute_firewall" "cert-manager-webhook-firewall" {
   name = "${var.region}-${var.environment}-cert-manager-webhook-firewall-rule"
-  network = var.network
+  network = var.network == "" ? "projects/${var.project}/global/networks/${var.environment}-vpc" : var.network
 
   allow {
     protocol = "tcp"
