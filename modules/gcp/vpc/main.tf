@@ -46,19 +46,3 @@ resource "google_compute_router_nat" "nat" {
   nat_ip_allocate_option             = "MANUAL_ONLY"
   nat_ips                            = google_compute_address.nat-address.*.self_link
 }
-
-resource "google_compute_firewall" "cert-manager-webhook-firewall" {
-  name = "${var.region}-${var.environment}-cert-manager-webhook-firewall-rule"
-  network = google_compute_network.network.self_link
-
-  allow {
-    protocol = "tcp"
-    ports = ["6443"]
-  }
-
-  direction = "INGRESS"
-  source_ranges = [
-    var.master_ipv4_cidr_block
-  ]
-  target_tags = ["gke-node"]
-}

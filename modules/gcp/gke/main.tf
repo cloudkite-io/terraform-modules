@@ -1,5 +1,6 @@
+
 resource "google_project_service" "container-api" {
-  project = var.gcp["project"]
+  project = var.project
   service = "container.googleapis.com"
 }
 
@@ -8,11 +9,11 @@ resource "google_container_cluster" "gke-cluster" {
 
   depends_on = ["google_project_service.container-api"]
 
-  project            = var.gcp["project"]
+  project            = var.project
   location             = var.gke["location"]
   name               = "${var.environment}-gke"
 
-  network          = var.network
+  network          = var.network == "" ? "projects/${var.project}/global/networks/${var.environment}-vpc" : var.network
   subnetwork       = var.subnetwork
 
   # Stackdriver
@@ -82,13 +83,13 @@ resource "google_container_cluster" "gke-cluster" {
   remove_default_node_pool = true
 
   workload_identity_config {
-    identity_namespace = "${var.gcp["project"]}.svc.id.goog"
+    identity_namespace = "${var.project}.svc.id.goog"
   }
 }
 
 resource "google_container_node_pool" "pools" {
   provider = "google-beta"
-  project = var.gcp["project"]
+  project = var.project
   count = length(var.gke_nodepools)
 
   name = "${google_container_cluster.gke-cluster.name}-pool-${count.index}"
@@ -130,7 +131,7 @@ resource "google_container_node_pool" "pools" {
 }
 
 resource "google_service_account" "gke_service_account" {
-  project      = var.gcp["project"]
+  project      = var.project
   account_id   = "${google_container_cluster.gke-cluster.name}-sa"
   display_name = "${google_container_cluster.gke-cluster.name} Service Account"
 }
@@ -146,7 +147,23 @@ locals {
 resource "google_project_iam_member" "service_account-roles" {
   for_each = toset(local.all_service_account_roles)
 
-  project = var.gcp["project"]
+  project = var.project
   role    = each.value
   member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_compute_firewall" "cert-manager-webhook-firewall" {
+  name = "${var.region}-${var.environment}-cert-manager-webhook-firewall-rule"
+  network = var.network == "" ? "projects/${var.project}/global/networks/${var.environment}-vpc" : var.network
+
+  allow {
+    protocol = "tcp"
+    ports = ["6443"]
+  }
+
+  direction = "INGRESS"
+  source_ranges = [
+    var.master_ipv4_cidr_block
+  ]
+  target_tags = ["gke-node"]
 }
