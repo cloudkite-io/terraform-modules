@@ -16,7 +16,9 @@ These modules are opinionated based on what we consider good defaults.
 * [vpc](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/vpc): GCP VPC
 * [velero](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/velero): GCP IAM Service Account and backups GCP Storage bucket for [Velero](https://velero.io)
 
-## Inputs required by the gke_nodepools map used in the gke module
+## Inputs
+
+The following map is required by the gke_nodepools map used in the cloudkite's gke module:
 
 | Name | Description | Type | Required |
 |------|-------------|:----:|:-----:|
