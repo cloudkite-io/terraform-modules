@@ -10,7 +10,7 @@ resource "google_container_cluster" "gke-cluster" {
   depends_on = ["google_project_service.container-api"]
 
   project            = var.project
-  location             = var.gke["location"]
+  location             = var.location
   name               = "${var.environment}-gke"
 
   network          = var.network == "" ? "projects/${var.project}/global/networks/${var.environment}-vpc" : var.network
@@ -68,7 +68,7 @@ resource "google_container_cluster" "gke-cluster" {
     }
   }
 
-  min_master_version = var.gke["min_master_version"]
+  min_master_version = var.min_master_version
 
   network_policy {
     enabled = var.enable_network_policy
@@ -77,7 +77,7 @@ resource "google_container_cluster" "gke-cluster" {
   private_cluster_config {
     enable_private_nodes = true
     enable_private_endpoint = false
-    master_ipv4_cidr_block = var.gke["master_ipv4_cidr_block"]
+    master_ipv4_cidr_block = var.master_ipv4_cidr_block
   }
 
   remove_default_node_pool = true
@@ -118,7 +118,7 @@ resource "google_container_node_pool" "pools" {
     }
   }
   initial_node_count = lookup(var.gke_nodepools[count.index], "min_node_count")
-  location = var.gke["location"]
+  location = var.location
   version = lookup(var.gke_nodepools[count.index], "version")
   lifecycle {
     ignore_changes = [

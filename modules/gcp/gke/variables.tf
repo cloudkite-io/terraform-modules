@@ -8,9 +8,21 @@ variable environment {
   type = "string"
 }
 
-variable "gke" {
-  description = "Map of Google Kubernetes Engine specific variables."
-  type = "map"
+variable "location" {
+  description = "The location (region or zone) of the GKE cluster."
+  type        = string
+}
+
+variable "min_master_version" {
+  type        = string
+  description = "The Kubernetes version of the masters. If set to 'latest' it will pull latest available version in the selected region."
+  default     = "latest"
+}
+
+variable "master_ipv4_cidr_block" {
+  type = string
+  description = "The IP range in CIDR notation (size must be /28) to use for the hosted master network."
+  default = "172.31.0.0/28"
 }
 
 variable "region" {
@@ -27,11 +39,6 @@ variable "network" {
 variable "subnetwork" {
   type        = string
   description = "The subnetwork to host the cluster in (required)."
-}
-
-variable "master_ipv4_cidr_block" {
-  description = "The master ip addresses range"
-  type        = string
 }
 
 variable "logging_service" {
@@ -94,6 +101,12 @@ variable "enable_network_policy" {
 variable "gke_nodepools" {
   type        = list(map(string))
   description = "List of maps containing node pools"
+
+  default = [
+    {
+      name = "default-node-pool"
+    },
+  ]
 }
 
 variable "service_account_roles" {
