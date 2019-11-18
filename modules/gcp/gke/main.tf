@@ -28,9 +28,6 @@ resource "google_container_cluster" "gke-cluster" {
     http_load_balancing {
       disabled = ! var.http_load_balancing
     }
-    kubernetes_dashboard {
-      disabled = ! var.kubernetes_dashboard
-    }
     network_policy_config {
       disabled = var.network_policy_config_disabled
     }
@@ -150,6 +147,14 @@ resource "google_project_iam_member" "service_account-roles" {
   project = var.project
   role    = each.value
   member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+}
+
+resource "google_storage_bucket_iam_binding" "gke_cluster_members" {
+  bucket = "artifacts.${var.project}.appspot.com"
+  role = "roles/storage.objectViewer"
+  members = [
+    "serviceAccount:${google_service_account.gke_service_account.email}",
+  ]
 }
 
 resource "google_compute_firewall" "cert-manager-webhook-firewall" {
