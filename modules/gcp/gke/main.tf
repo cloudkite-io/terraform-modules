@@ -150,6 +150,8 @@ resource "google_project_iam_member" "service_account-roles" {
   member  = "serviceAccount:${google_service_account.gke_service_account.email}"
 }
 
+# Allow gke_service_account objectViewer access to the artifacts.<project>.appspot.com GCS bucket
+# to pull images from gcr
 resource "google_storage_bucket_iam_binding" "gke_cluster_members" {
   bucket = "artifacts.${var.project}.appspot.com"
   role = "roles/storage.objectViewer"
