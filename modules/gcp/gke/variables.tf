@@ -65,12 +65,6 @@ variable "http_load_balancing" {
   default     = true
 }
 
-variable "kubernetes_dashboard" {
-  type        = bool
-  description = "Enable kubernetes dashboard addon."
-  default     = false
-}
-
 variable "network_policy_config_disabled" {
   type        = bool
   description = "Enable network policy addon."
