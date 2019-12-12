@@ -146,6 +146,7 @@ resource "google_project_iam_member" "service_account-roles" {
 
   project = var.project
   role    = each.value
+  #Allow gke_service_account write access to Stackdriver Logging, Stackdriver Logging and Stackdriver Trace
   member  = "serviceAccount:${google_service_account.gke_service_account.email}"
 }
 
