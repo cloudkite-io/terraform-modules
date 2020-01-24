@@ -160,13 +160,13 @@ resource "google_storage_bucket_iam_binding" "gke_cluster_members" {
   ]
 }
 
-resource "google_compute_firewall" "cert-manager-webhook-firewall" {
-  name = "${var.region}-${var.environment}-cert-manager-webhook-firewall-rule"
+resource "google_compute_firewall" "prometheus-operator-webhook-firewall-rule" {
+  name = "${var.region}-${var.environment}-prometheus-operator-webhook-firewall-rule"
   network = var.network == "" ? "projects/${var.project}/global/networks/${var.environment}-vpc" : var.network
 
   allow {
     protocol = "tcp"
-    ports = ["6443"]
+    ports = ["8443"]
   }
 
   direction = "INGRESS"
