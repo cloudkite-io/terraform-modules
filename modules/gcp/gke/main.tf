@@ -5,9 +5,9 @@ resource "google_project_service" "container-api" {
 }
 
 resource "google_container_cluster" "gke-cluster" {
-  provider = "google-beta"
+  provider = google-beta
 
-  depends_on = ["google_project_service.container-api"]
+  depends_on = [google_project_service.container-api]
 
   project            = var.project
   location             = var.location
@@ -85,13 +85,13 @@ resource "google_container_cluster" "gke-cluster" {
 }
 
 resource "google_container_node_pool" "pools" {
-  provider = "google-beta"
+  provider = google-beta
   project = var.project
   count = length(var.gke_nodepools)
 
   name = "${google_container_cluster.gke-cluster.name}-pool-${count.index}"
   cluster = google_container_cluster.gke-cluster.name
-  depends_on = ["google_container_cluster.gke-cluster"]
+  depends_on = [google_container_cluster.gke-cluster]
   autoscaling {
     min_node_count = lookup(var.gke_nodepools[count.index], "min_node_count")
     max_node_count = lookup(var.gke_nodepools[count.index], "max_node_count")
@@ -119,10 +119,10 @@ resource "google_container_node_pool" "pools" {
   version = lookup(var.gke_nodepools[count.index], "version")
   lifecycle {
     ignore_changes = [
-      "initial_node_count",
-      "name",
-      "version",
-      "node_config"
+      initial_node_count,
+      name,
+      version,
+      node_config
     ]
   }
 }
@@ -148,16 +148,6 @@ resource "google_project_iam_member" "service_account-roles" {
   role    = each.value
   #Allow gke_service_account write access to Stackdriver Logging, Stackdriver Logging and Stackdriver Trace
   member  = "serviceAccount:${google_service_account.gke_service_account.email}"
-}
-
-# Allow gke_service_account objectViewer access to the artifacts.<project>.appspot.com GCS bucket
-# to pull images from gcr
-resource "google_storage_bucket_iam_binding" "gke_cluster_members" {
-  bucket = "artifacts.${var.project}.appspot.com"
-  role = "roles/storage.objectViewer"
-  members = [
-    "serviceAccount:${google_service_account.gke_service_account.email}",
-  ]
 }
 
 resource "google_compute_firewall" "prometheus-operator-webhook-firewall-rule" {

@@ -1,11 +1,11 @@
 variable "project" {
   description = "The project ID to host the cluster in (required)"
-  type = "string"
+  type = string
 }
 
 variable environment {
   description = "The environment for <development|production> workloads."
-  type = "string"
+  type = string
 }
 
 variable "location" {
