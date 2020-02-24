@@ -1,44 +1,73 @@
-# Create a service account for Velero
-resource "google_service_account" "velero_service_account" {
-  project      = var.project
-  account_id   = var.name
-  display_name = "Velero Service Account"
-}
-
-locals {
-  all_service_account_roles = concat(var.service_account_roles, [
-    "roles/storage.objectAdmin",
-    "roles/compute.storageAdmin",
-    "roles/iam.serviceAccountAdmin"
-  ])
-}
-
-# Allow velero_service_account admin access to Google Cloud Storage and service accounts.
-# The iam binding required between K8s SA and Google SA
-# needs iam.serviceAccounts.setIamPolicy permission on the Google service account.
-resource "google_project_iam_member" "service_account-roles" {
-  for_each = toset(local.all_service_account_roles)
-
-  project = var.project
-  role    = each.value
-  member  = "serviceAccount:${google_service_account.velero_service_account.email}"
-}
-
-# Allow the Kubernetes service account to use the Google service account
-resource "google_service_account_iam_binding" "velero_service_iam_binding" {
-  service_account_id = google_service_account.velero_service_account.name
-  role  = "roles/iam.workloadIdentityUser"
-  members = [
-    "serviceAccount:${var.project}.svc.id.goog[velero/velero-server]"
-  ]
-}
-
 # Create the velero backups bucket
 resource "google_storage_bucket" "backups" {
   name = var.backups_bucket_name
   location = var.backups_bucket_location
 }
 
-resource "google_service_account_key" "velero" {
-  service_account_id = google_service_account.velero_service_account.id
+# Create a service account for Velero
+resource "google_service_account" "velero-service-account" {
+  project      = var.project
+  account_id   = var.service_account_name
+  display_name = "Velero Service Account"
+}
+
+# Grant full control over objects, including listing, creating, viewing, and deleting storage objects in bucket.
+resource "google_storage_bucket_iam_member" "editor" {
+  bucket = google_storage_bucket.backups.name
+  role = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.velero-service-account.email}"
+}
+
+# Allow Velero to make GCP API calls for Disks
+resource "google_project_iam_custom_role" "velero-server" {
+  role_id     = "velero.server"
+  title       = "Velero Server Custom Role"
+  description = "This role allows Velero to make GCP API calls for Disks"
+  permissions = [
+    "compute.disks.get",
+    "compute.disks.create",
+    "compute.disks.createSnapshot",
+    "compute.snapshots.get",
+    "compute.snapshots.create",
+    "compute.snapshots.useReadOnly",
+    "compute.snapshots.delete",
+    "compute.zones.get",
+  ]
+}
+
+# Add velero.server role to velero sa
+resource "google_project_iam_binding" "velero-sa-binding" {
+  project = var.project
+  role = google_project_iam_custom_role.velero-server.id
+
+  members = [
+    "serviceAccount:${google_service_account.velero-service-account.email}",
+  ]
+}
+
+# Grant to service accounts the permission to sign urls for the GCP bucket
+resource "google_project_iam_custom_role" "blob-signer" {
+  role_id     = "blob.signer"
+  title       = "Blob Signer Custom Role"
+  description = "Grant to service accounts the permission to sign urls for the GCP bucket"
+  permissions = ["iam.serviceAccounts.signBlob"]
+}
+
+# Add the blob-signer role to the service account
+resource "google_project_iam_binding" "velero-blob-signer" {
+  project = var.project
+  role = google_project_iam_custom_role.blob-signer.id
+
+  members = [
+    "serviceAccount:${google_service_account.velero-service-account.email}",
+  ]
+}
+
+# Create a relationship between the Kubernetes service account and the GCP service account
+resource "google_service_account_iam_binding" "velero-sa-role-binding" {
+  service_account_id = google_service_account.velero-service-account.name
+  role  = "roles/iam.workloadIdentityUser"
+  members = [
+    "serviceAccount:${var.project}.svc.id.goog[velero/velero]"
+  ]
 }
