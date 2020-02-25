@@ -18,7 +18,7 @@ resource "google_storage_bucket_iam_member" "editor" {
   member = "serviceAccount:${google_service_account.velero-service-account.email}"
 }
 
-# Allow Velero to make GCP API calls for Disks
+# Allow Velero to make GCP API calls for Disks and permission to sign urls for the GCP bucket
 resource "google_project_iam_custom_role" "velero-server" {
   role_id     = "velero.server"
   title       = "Velero Server Custom Role"
@@ -32,6 +32,7 @@ resource "google_project_iam_custom_role" "velero-server" {
     "compute.snapshots.useReadOnly",
     "compute.snapshots.delete",
     "compute.zones.get",
+    "iam.serviceAccounts.signBlob"
   ]
 }
 
@@ -39,24 +40,6 @@ resource "google_project_iam_custom_role" "velero-server" {
 resource "google_project_iam_binding" "velero-sa-binding" {
   project = var.project
   role = google_project_iam_custom_role.velero-server.id
-
-  members = [
-    "serviceAccount:${google_service_account.velero-service-account.email}",
-  ]
-}
-
-# Grant to service accounts the permission to sign urls for the GCP bucket
-resource "google_project_iam_custom_role" "blob-signer" {
-  role_id     = "blob.signer"
-  title       = "Blob Signer Custom Role"
-  description = "Grant to service accounts the permission to sign urls for the GCP bucket"
-  permissions = ["iam.serviceAccounts.signBlob"]
-}
-
-# Add the blob-signer role to the service account
-resource "google_project_iam_binding" "velero-blob-signer" {
-  project = var.project
-  role = google_project_iam_custom_role.blob-signer.id
 
   members = [
     "serviceAccount:${google_service_account.velero-service-account.email}",
