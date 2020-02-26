@@ -83,7 +83,7 @@ variable "gke_pods_secondary_range_name" {
 
 variable "gke_master_authorized_networks" {
   description = "The networks from which a connection to the master can be established"
-  type        = "list"
+  type        = list(map(string))
 }
 
 variable "enable_network_policy" {
