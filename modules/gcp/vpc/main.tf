@@ -26,12 +26,14 @@ resource "google_compute_subnetwork" "gke-subnetwork" {
 }
 
 resource "google_compute_address" "nat-address" {
-  count  = 2
-  name   = "nat-external-address-${count.index}"
+  count   = 2
+  project = var.project
+  name    = "nat-external-address-${count.index}"
   region  = google_compute_subnetwork.gke-subnetwork.region
 }
 
 resource "google_compute_router" "router" {
+  project = var.project
   name    = "${var.region}-${var.environment}-router"
   region  = google_compute_subnetwork.gke-subnetwork.region
   network = google_compute_network.network.self_link

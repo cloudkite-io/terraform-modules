@@ -1,5 +1,6 @@
 # Create the velero backups bucket
 resource "google_storage_bucket" "backups" {
+  project      = var.project
   name = var.backups_bucket_name
   location = var.backups_bucket_location
 }
@@ -20,6 +21,7 @@ resource "google_storage_bucket_iam_member" "editor" {
 
 # Allow Velero to make GCP API calls for Disks and permission to sign urls for the GCP bucket
 resource "google_project_iam_custom_role" "velero-server" {
+  project     = var.project
   role_id     = "velero.server"
   title       = "Velero Server Custom Role"
   description = "This role allows Velero to make GCP API calls for Disks"
