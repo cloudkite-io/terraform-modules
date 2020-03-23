@@ -1,4 +1,3 @@
-
 resource "google_project_service" "container-api" {
   project = var.project
   service = "container.googleapis.com"
@@ -116,7 +115,7 @@ resource "google_container_node_pool" "pools" {
   }
   initial_node_count = lookup(var.gke_nodepools[count.index], "min_node_count")
   location = var.location
-  version = lookup(var.gke_nodepools[count.index], "version")
+  version = lookup(var.gke_nodepools[count.index], "version", var.min_master_version)
   lifecycle {
     ignore_changes = [
       initial_node_count,
