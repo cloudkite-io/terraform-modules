@@ -10,7 +10,6 @@ resource "google_compute_subnetwork" "gke-subnetwork" {
   ip_cidr_range            = "${var.network-prefix}.0.0/19"
   region                   = var.region
   private_ip_google_access = "true"
-  enable_flow_logs         = "false"
   network                  = google_compute_network.network.name
   project                  = var.project
 
