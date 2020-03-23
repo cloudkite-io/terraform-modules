@@ -150,6 +150,7 @@ resource "google_project_iam_member" "service_account-roles" {
 }
 
 resource "google_compute_firewall" "prometheus-operator-webhook-firewall-rule" {
+  project = var.project
   name = "${var.region}-${var.environment}-prometheus-operator-webhook-firewall-rule"
   network = var.network == "" ? "projects/${var.project}/global/networks/${var.environment}-vpc" : var.network
 
