@@ -3,6 +3,11 @@ output "network" {
   value       = google_compute_network.network.self_link
 }
 
+output "network_name" {
+  description = "A reference (name) to the VPC network"
+  value       = google_compute_network.network.name
+}
+
 # GKE Subnetwork Outputs
 
 output "gke_subnetwork" {
