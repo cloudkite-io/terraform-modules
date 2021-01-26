@@ -12,6 +12,7 @@ These modules are opinionated based on what we consider good defaults.
 
 ### Modules:
 
+* [cloud sql dashboard](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/cloudsql-dashboard): GCP Cloudsql Dashboard
 * [gke](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/gke): GKE module for Google Compute Platform
 * [vpc](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/vpc): GCP VPC
 * [velero](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/velero): GCP IAM Service Account and backups GCP Storage bucket for [Velero](https://velero.io)
