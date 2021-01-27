@@ -7,5 +7,5 @@ variable "project" {
 variable "dashboard_json_file" {
   description = "The JSON file of the dashboard."
   type        = string
-  default = "./templates/cloudsql-monitoring.json"
+  default = "templates/cloudsql-monitoring.json"
 }
