@@ -6,6 +6,6 @@ resource "google_project_service" "enable_destination_api" {
 }
 
 resource "google_monitoring_dashboard" "dashboard" {
-  dashboard_json = file(var.dashboard_json_file)
+  dashboard_json = file("${path.module}/${var.dashboard_json_file}")
   project        = var.project
 }
