@@ -50,8 +50,6 @@ resource "google_container_cluster" "gke-cluster" {
     client_certificate_config {
       issue_client_certificate = false
     }
-    username = ""
-    password = ""
   }
 
   master_authorized_networks_config {
@@ -79,7 +77,7 @@ resource "google_container_cluster" "gke-cluster" {
   remove_default_node_pool = true
 
   workload_identity_config {
-    identity_namespace = "${var.project}.svc.id.goog"
+    workload_pool = "${var.project}.svc.id.goog"
   }
 }
 
