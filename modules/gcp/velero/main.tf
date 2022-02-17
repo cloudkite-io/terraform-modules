@@ -1,6 +1,6 @@
 # Create the velero backups bucket
 resource "google_storage_bucket" "backups" {
-  project      = var.project
+  project      = var.backup_project
   name = var.backups_bucket_name
   location = var.backups_bucket_location
 }
@@ -14,6 +14,7 @@ resource "google_service_account" "velero-service-account" {
 
 # Grant full control over objects, including listing, creating, viewing, and deleting storage objects in bucket.
 resource "google_storage_bucket_iam_member" "editor" {
+  project      = var.backup_project
   bucket = google_storage_bucket.backups.name
   role = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.velero-service-account.email}"
