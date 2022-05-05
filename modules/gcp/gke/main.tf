@@ -108,7 +108,7 @@ resource "google_container_node_pool" "pools" {
     tags = ["gke-node"]
 
     workload_metadata_config {
-      node_metadata = "GKE_METADATA_SERVER"
+      mode = "GKE_METADATA"
     }
   }
   initial_node_count = lookup(var.gke_nodepools[count.index], "min_node_count")
