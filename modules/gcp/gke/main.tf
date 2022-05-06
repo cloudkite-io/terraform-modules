@@ -84,23 +84,27 @@ resource "google_container_cluster" "gke-cluster" {
 resource "google_container_node_pool" "pools" {
   provider = google-beta
   project = var.project
-  count = length(var.gke_nodepools)
+  for_each = var.gke_nodepools
 
-  name = "${google_container_cluster.gke-cluster.name}-pool-${count.index}"
+  name = each.key
+
+  max_pods_per_node = each.value.max_pods_per_node
   cluster = google_container_cluster.gke-cluster.name
   depends_on = [google_container_cluster.gke-cluster]
   autoscaling {
-    min_node_count = lookup(var.gke_nodepools[count.index], "min_node_count")
-    max_node_count = lookup(var.gke_nodepools[count.index], "max_node_count")
+    min_node_count = each.value.min_node_count
+    max_node_count = each.value.max_node_count
   }
   management {
-    auto_repair = lookup(var.gke_nodepools[count.index], "auto_repair")
-    auto_upgrade = lookup(var.gke_nodepools[count.index], "auto_upgrade")
+    auto_repair = each.value.auto_repair
+    auto_upgrade = each.value.auto_upgrade
   }
   node_config {
-    machine_type = lookup(var.gke_nodepools[count.index], "machine_type")
-    disk_size_gb = lookup(var.gke_nodepools[count.index], "disk_size_gb")
-    preemptible = lookup(var.gke_nodepools[count.index], "preemptible")
+    machine_type = each.value.machine_type
+    disk_size_gb = each.value.disk_size_gb
+    disk_type = each.value.disk_type
+    preemptible = each.value.preemptible
+    labels = each.value.labels
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
     ]
@@ -111,9 +115,9 @@ resource "google_container_node_pool" "pools" {
       mode = "GKE_METADATA"
     }
   }
-  initial_node_count = lookup(var.gke_nodepools[count.index], "min_node_count")
+  initial_node_count = each.value.min_node_count
   location = var.location
-  version = lookup(var.gke_nodepools[count.index], "version", var.min_master_version)
+  version = each.value.version
   lifecycle {
     ignore_changes = [
       initial_node_count,
