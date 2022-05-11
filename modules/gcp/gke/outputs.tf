@@ -3,3 +3,7 @@ output "name" {
 
   value = google_container_cluster.gke-cluster.name
 }
+
+output "gke-sa" {
+  value = google_service_account.gke_service_account.email
+}
