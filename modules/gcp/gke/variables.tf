@@ -93,14 +93,10 @@ variable "enable_network_policy" {
 }
 
 variable "gke_nodepools" {
-  type        = list(map(string))
+  type        = map
   description = "List of maps containing node pools"
 
-  default = [
-    {
-      name = "default-node-pool"
-    },
-  ]
+  default = {}
 }
 
 variable "service_account_roles" {
