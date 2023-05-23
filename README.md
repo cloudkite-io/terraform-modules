@@ -1,16 +1,20 @@
+# Terraform Modules
+
 [![Maintained by cloudkite.io](https://img.shields.io/badge/maintained%20by-cloudkite.io-%235849a6.svg)](https://cloudkite.io/)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/cloudkite-io/terraform-modules.svg?label=latest)](https://github.com/cloudkite-io/terraform-modules/releases/latest)
 ![Terraform Version](https://img.shields.io/badge/tf-%3E%3D0.12.9-blue.svg)
 
-# Terraform Modules
-
-This repo contains [Terraform](https://www.terraform.io/docs/configuration/modules.html) modules for building and maintaining cloud infrastructure.
+This repo contains
+[Terraform](https://www.terraform.io/docs/configuration/modules.html)
+modules for building and maintaining cloud infrastructure.
 
 These modules are opinionated based on what we consider good defaults.
 
 ## Repo content
 
-### Modules:
+<!-- markdownlint-disable MD013 -->
+
+### Modules
 
 * [cloud sql dashboard](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/cloudsql-dashboard): GCP Cloudsql Dashboard
 * [gke](https://github.com/cloudkite-io/terraform-modules/tree/master/modules/gcp/gke): GKE module for Google Compute Platform

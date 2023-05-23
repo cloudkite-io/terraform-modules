@@ -1,11 +1,11 @@
 variable "project" {
   description = "The project ID to host the cluster in (required)"
-  type = string
+  type        = string
 }
 
-variable environment {
+variable "environment" {
   description = "The environment for <development|production> workloads."
-  type = string
+  type        = string
 }
 
 variable "location" {
@@ -20,9 +20,9 @@ variable "min_master_version" {
 }
 
 variable "master_ipv4_cidr_block" {
-  type = string
+  type        = string
   description = "The IP range in CIDR notation (size must be /28) to use for the hosted master network."
-  default = "172.31.0.0/28"
+  default     = "172.31.0.0/28"
 }
 
 variable "region" {
@@ -33,7 +33,7 @@ variable "region" {
 variable "network" {
   type        = string
   description = "The VPC network to host the cluster in (required). If this isn't passed in, the module tries projects/{{project}}/global/networks/{var.environment}-vpc"
-  default = ""
+  default     = ""
 }
 
 variable "subnetwork" {
@@ -68,7 +68,7 @@ variable "http_load_balancing" {
 variable "network_policy_config_disabled" {
   type        = bool
   description = "Enable network policy addon."
-  default = false
+  default     = false
 }
 
 variable "gke_services_secondary_range_name" {
@@ -89,11 +89,11 @@ variable "gke_master_authorized_networks" {
 variable "enable_network_policy" {
   description = "Whether to enable Kubernetes NetworkPolicy on the master. It is required to be enabled to be used on Nodes."
   type        = bool
-  default = true
+  default     = true
 }
 
 variable "gke_nodepools" {
-  type        = map
+  type        = map(any)
   description = "List of maps containing node pools"
 
   default = {}

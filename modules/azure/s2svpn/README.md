@@ -1,4 +1,4 @@
-## terraform module for azure site to site vpn
+# terraform module for azure site to site vpn
 
 example using static routes
 
@@ -12,7 +12,7 @@ module "s2svpn-legacy" {
   sku                 = "VpnGw1"
   enable_bgp          = false
   active_active       = false
-  local_networks      = 
+  local_networks      =
   local_networks = [
     {
       name            = "onpremise"
@@ -21,7 +21,7 @@ module "s2svpn-legacy" {
       address_space = [
         "10.0.0.0/8"
       ]
-      #pre-shared key must be similar to on-premise key 
+      #pre-shared key must be similar to on-premise key
       shared_key = "TESTING"
 
       ipsec_policy = {

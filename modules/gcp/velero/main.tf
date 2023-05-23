@@ -1,7 +1,7 @@
 # Create the velero backups bucket
 resource "google_storage_bucket" "backups" {
-  project      = var.backup_project
-  name = var.backups_bucket_name
+  project  = var.backup_project
+  name     = var.backups_bucket_name
   location = var.backups_bucket_location
 }
 
@@ -15,7 +15,7 @@ resource "google_service_account" "velero-service-account" {
 # Grant full control over objects, including listing, creating, viewing, and deleting storage objects in bucket.
 resource "google_storage_bucket_iam_member" "editor" {
   bucket = google_storage_bucket.backups.name
-  role = "roles/storage.objectAdmin"
+  role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.velero-service-account.email}"
 }
 
@@ -41,7 +41,7 @@ resource "google_project_iam_custom_role" "velero-server" {
 # Add velero.server role to velero sa
 resource "google_project_iam_binding" "velero-sa-binding" {
   project = var.project
-  role = google_project_iam_custom_role.velero-server.id
+  role    = google_project_iam_custom_role.velero-server.id
 
   members = [
     "serviceAccount:${google_service_account.velero-service-account.email}",
@@ -51,7 +51,7 @@ resource "google_project_iam_binding" "velero-sa-binding" {
 # Create a relationship between the Kubernetes service account and the GCP service account
 resource "google_service_account_iam_binding" "velero-sa-role-binding" {
   service_account_id = google_service_account.velero-service-account.name
-  role  = "roles/iam.workloadIdentityUser"
+  role               = "roles/iam.workloadIdentityUser"
   members = [
     "serviceAccount:${var.project}.svc.id.goog[velero/velero]"
   ]

@@ -1,17 +1,21 @@
 variable "name" {
   description = "Name of virtual gateway."
+  type        = string
 }
 
 variable "resource_group_name" {
   description = "Name of resource group to deploy resources in."
+  type        = string
 }
 
 variable "location" {
   description = "The Azure Region in which to create resource."
+  type        = string
 }
 
 variable "subnet_id" {
   description = "Id of subnet where gateway should be deployed, have to be named GatewaySubnet."
+  type        = string
 }
 
 variable "enable_bgp" {
@@ -28,6 +32,7 @@ variable "active_active" {
 
 variable "sku" {
   description = "Configuration of the size and capacity of the virtual network gateway."
+  type        = string
 }
 
 variable "client_configuration" {

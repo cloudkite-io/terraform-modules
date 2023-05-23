@@ -9,8 +9,8 @@ output "resource_id" {
 
 output "console_link" {
   description = "The destination console URL for the dashboard."
-  value       = join("", ["https://console.cloud.google.com/monitoring/dashboards/custom/",
-                          element(split("/", google_monitoring_dashboard.dashboard.id), 3),
-                          "?project=",
-                          var.project])
+  value = join("", ["https://console.cloud.google.com/monitoring/dashboards/custom/",
+    element(split("/", google_monitoring_dashboard.dashboard.id), 3),
+    "?project=",
+  var.project])
 }
