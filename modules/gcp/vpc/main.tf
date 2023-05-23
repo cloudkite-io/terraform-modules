@@ -15,12 +15,12 @@ resource "google_compute_subnetwork" "gke-subnetwork" {
 
   secondary_ip_range = [
     {
-      range_name          = "${var.region}-gke-services"
-      ip_cidr_range       = "${var.network-prefix}.32.0/19"
+      range_name    = "${var.region}-gke-services"
+      ip_cidr_range = "${var.network-prefix}.32.0/19"
     },
     {
-      range_name          = "${var.region}-gke-pods"
-      ip_cidr_range       = "${var.network-prefix}.128.0/17"
+      range_name    = "${var.region}-gke-pods"
+      ip_cidr_range = "${var.network-prefix}.128.0/17"
     }
   ]
 }
@@ -46,5 +46,5 @@ resource "google_compute_router_nat" "nat" {
   region                             = var.region
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
   nat_ip_allocate_option             = "MANUAL_ONLY"
-  nat_ips                            = google_compute_address.nat-address.*.self_link
+  nat_ips                            = google_compute_address.nat-address[*].self_link
 }

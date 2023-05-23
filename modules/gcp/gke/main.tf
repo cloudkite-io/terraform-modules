@@ -8,24 +8,24 @@ resource "google_container_cluster" "gke-cluster" {
 
   depends_on = [google_project_service.container-api]
 
-  project            = var.project
-  location             = var.location
-  name               = "${var.environment}-gke"
+  project  = var.project
+  location = var.location
+  name     = "${var.environment}-gke"
 
-  network          = var.network == "" ? "projects/${var.project}/global/networks/${var.environment}-vpc" : var.network
-  subnetwork       = var.subnetwork
+  network    = var.network == "" ? "projects/${var.project}/global/networks/${var.environment}-vpc" : var.network
+  subnetwork = var.subnetwork
 
   # Stackdriver
-  logging_service = var.logging_service
+  logging_service    = var.logging_service
   monitoring_service = var.monitoring_service
 
   # Disable kubernetes dashboard
   addons_config {
     horizontal_pod_autoscaling {
-      disabled = ! var.horizontal_pod_autoscaling
+      disabled = !var.horizontal_pod_autoscaling
     }
     http_load_balancing {
-      disabled = ! var.http_load_balancing
+      disabled = !var.http_load_balancing
     }
     network_policy_config {
       disabled = var.network_policy_config_disabled
@@ -35,7 +35,7 @@ resource "google_container_cluster" "gke-cluster" {
   initial_node_count = 1
 
   ip_allocation_policy {
-    cluster_secondary_range_name = var.gke_pods_secondary_range_name
+    cluster_secondary_range_name  = var.gke_pods_secondary_range_name
     services_secondary_range_name = var.gke_services_secondary_range_name
   }
 
@@ -56,8 +56,8 @@ resource "google_container_cluster" "gke-cluster" {
     dynamic "cidr_blocks" {
       for_each = var.gke_master_authorized_networks
       content {
-        cidr_block    = cidr_blocks.value.cidr_block
-        display_name  = cidr_blocks.value.display_name
+        cidr_block   = cidr_blocks.value.cidr_block
+        display_name = cidr_blocks.value.display_name
       }
     }
   }
@@ -69,9 +69,9 @@ resource "google_container_cluster" "gke-cluster" {
   }
 
   private_cluster_config {
-    enable_private_nodes = true
+    enable_private_nodes    = true
     enable_private_endpoint = false
-    master_ipv4_cidr_block = var.master_ipv4_cidr_block
+    master_ipv4_cidr_block  = var.master_ipv4_cidr_block
   }
 
   remove_default_node_pool = true
@@ -83,41 +83,41 @@ resource "google_container_cluster" "gke-cluster" {
 
 resource "google_container_node_pool" "pools" {
   provider = google-beta
-  project = var.project
+  project  = var.project
   for_each = var.gke_nodepools
 
   name = each.key
 
   max_pods_per_node = each.value.max_pods_per_node
-  cluster = google_container_cluster.gke-cluster.name
-  depends_on = [google_container_cluster.gke-cluster]
+  cluster           = google_container_cluster.gke-cluster.name
+  depends_on        = [google_container_cluster.gke-cluster]
   autoscaling {
     min_node_count = each.value.min_node_count
     max_node_count = each.value.max_node_count
   }
   management {
-    auto_repair = each.value.auto_repair
+    auto_repair  = each.value.auto_repair
     auto_upgrade = each.value.auto_upgrade
   }
   node_config {
     machine_type = each.value.machine_type
     disk_size_gb = each.value.disk_size_gb
-    disk_type = each.value.disk_type
-    preemptible = each.value.preemptible
-    labels = each.value.labels
+    disk_type    = each.value.disk_type
+    preemptible  = each.value.preemptible
+    labels       = each.value.labels
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
     ]
     service_account = google_service_account.gke_service_account.email
-    tags = ["gke-node"]
+    tags            = ["gke-node"]
 
     workload_metadata_config {
       mode = "GKE_METADATA"
     }
   }
   initial_node_count = each.value.min_node_count
-  location = var.location
-  version = each.value.version
+  location           = var.location
+  version            = each.value.version
   lifecycle {
     ignore_changes = [
       initial_node_count,
@@ -148,17 +148,17 @@ resource "google_project_iam_member" "service_account-roles" {
   project = var.project
   role    = each.value
   #Allow gke_service_account write access to Stackdriver Logging, Stackdriver Logging and Stackdriver Trace
-  member  = "serviceAccount:${google_service_account.gke_service_account.email}"
+  member = "serviceAccount:${google_service_account.gke_service_account.email}"
 }
 
 resource "google_compute_firewall" "prometheus-operator-webhook-firewall-rule" {
   project = var.project
-  name = "${var.region}-${var.environment}-prometheus-operator-webhook-firewall-rule"
+  name    = "${var.region}-${var.environment}-prometheus-operator-webhook-firewall-rule"
   network = var.network == "" ? "projects/${var.project}/global/networks/${var.environment}-vpc" : var.network
 
   allow {
     protocol = "tcp"
-    ports = ["8443"]
+    ports    = ["8443"]
   }
 
   direction = "INGRESS"

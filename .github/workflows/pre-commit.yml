@@ -1,0 +1,26 @@
+---
+name: Run pre-commit
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+jobs:
+  pre-commit:
+    name: Run pre-commit
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install tools
+        shell: bash
+        run: |
+          bash -x ./scripts/github_actions-install_tools.sh
+      - name: run pre-commit
+        uses: pre-commit/action@v3.0.0
+        env:
+          # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
+          GITHUB_TOKEN: ${{ github.token }}
