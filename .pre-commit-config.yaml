@@ -18,6 +18,7 @@ repos:
       - id: terraform_docs
       - id: terraform_tflint
         args:
+          - --args=--module
           - --args=--minimum-failure-severity=notice
           - --args=--config=.tflint.hcl
   - repo: https://github.com/pre-commit/pre-commit-hooks
