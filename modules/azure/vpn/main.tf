@@ -65,7 +65,7 @@ resource "azurerm_virtual_network_gateway" "gw" {
     for_each = var.client_configuration != null ? [var.client_configuration] : []
     iterator = vpn
     content {
-      address_space = [vpn.value.address_space]
+      address_space = vpn.value.address_space
 
       root_certificate {
         name = "VPN-Certificate"
@@ -74,6 +74,14 @@ resource "azurerm_virtual_network_gateway" "gw" {
       }
 
       vpn_client_protocols = vpn.value.protocols
+      vpn_auth_types       = vpn.value.auth_types
+      dynamic "revoked_certificate" {
+        for_each = vpn.value.revoked_certificates
+        content {
+          name       = revoked_certificate.key
+          thumbprint = revoked_certificate.thumbprint
+        }
+      }
     }
   }
 
