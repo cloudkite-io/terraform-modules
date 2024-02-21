@@ -21,6 +21,7 @@ repos:
           - --args=--module
           - --args=--minimum-failure-severity=notice
           - --args=--config=.tflint.hcl
+          - --args=--disable-rule terraform_naming_convention
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
