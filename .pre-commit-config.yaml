@@ -20,7 +20,7 @@ repos:
         args:
           - --args=--module
           - --args=--minimum-failure-severity=notice
-          - --args=--config=../../../.tflint.hcl
+          - --args=--config=.tflint.hcl
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
