@@ -45,7 +45,7 @@ variable "client_configuration" {
     revoked_certificates = optional(map(object({
       name       = string
       thumbprint = string
-    })),{})
+    })), {})
   })
   default = null
 }

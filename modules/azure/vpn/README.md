@@ -39,8 +39,10 @@ module "s2svpn" {
 
 }
 ```
+
 example using static routes for p2svpn
-```
+
+```shell
 module "p2svpn" {
     source              = "git::https://github.com/cloudkite-io/terraform-modules.git//modules/azure/vpn?ref=0.1.7"
     name                = "${var.environment}-vpn"
@@ -58,6 +60,7 @@ module "p2svpn" {
 
 
 ```
+
 ## Requirements
 
 | Name | Version |
