@@ -2,6 +2,7 @@
 
 example using static routes for s2svpn
 
+<!-- markdownlint-disable MD013 MD033 -->
 ```shell
 module "s2svpn" {
   source              = "git::https://github.com/cloudkite-io/terraform-modules.git//modules/azure/s2svpn?ref=v0.1.4"
@@ -58,9 +59,7 @@ module "p2svpn" {
     }
 }
 
-
-```
-
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -93,7 +92,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_active_active"></a> [active\_active](#input\_active\_active) | If true, an active-active Virtual Network Gateway will be created. An active-active gateway requires a HighPerformance or an UltraPerformance sku. If false, an active-standby gateway will be created. Defaults to false. | `bool` | `false` | no |
-| <a name="input_client_configuration"></a> [client\_configuration](#input\_client\_configuration) | If set it will activate point-to-site configuration. | <pre>object({<br>    address_space  = string<br>    protocols      = list(string)<br>    certificate    = string<br>    vpn_auth_types = list(string)<br>    revoked_certificates = map(object({<br>      name = string<br>      thumbprint = string<br>    }))<br>  })</pre> | `null` | no |
+| <a name="input_client_configuration"></a> [client\_configuration](#input\_client\_configuration) | If set it will activate point-to-site configuration. | <pre>object({<br>    address_space = list(string)<br>    protocols     = list(string)<br>    certificate   = string<br>    auth_types    = list(string)<br>    revoked_certificates = optional(map(object({<br>      name       = string<br>      thumbprint = string<br>    })), {})<br>  })</pre> | `null` | no |
 | <a name="input_enable_bgp"></a> [enable\_bgp](#input\_enable\_bgp) | If true, BGP (Border Gateway Protocol) will be enabled for this Virtual Network Gateway. Defaults to false. | `bool` | `false` | no |
 | <a name="input_local_networks"></a> [local\_networks](#input\_local\_networks) | List of local virtual network connections to connect to gateway. | <pre>list(<br>    object({<br>      name            = string<br>      gateway_address = string<br>      address_space   = list(string)<br>      shared_key      = string<br>      ipsec_policy    = any<br>    })<br>  )</pre> | `[]` | no |
 | <a name="input_location"></a> [location](#input\_location) | The Azure Region in which to create resource. | `string` | n/a | yes |
@@ -108,3 +107,4 @@ No modules.
 |------|-------------|
 | <a name="output_fqdns"></a> [fqdns](#output\_fqdns) | List of the fqdn for gateway. Will return 2 for active\_active mode and 1 otherwise |
 | <a name="output_gateway_id"></a> [gateway\_id](#output\_gateway\_id) | The ID of the virtual network gateway. |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
