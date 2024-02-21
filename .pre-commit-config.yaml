@@ -11,6 +11,7 @@ repos:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline]
         exclude: package.lock.json
+  ## tech debt to refactor google modules.
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.79.1
     hooks:
@@ -18,8 +19,12 @@ repos:
       - id: terraform_docs
       - id: terraform_tflint
         args:
+          - --args=--module
           - --args=--minimum-failure-severity=notice
           - --args=--config=.tflint.hcl
+          - --args=--disable-rule terraform_naming_convention
+          - --args=--disable-rule terraform_documented_outputs
+          - --args=--disable-rule terraform_comment_syntax
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:

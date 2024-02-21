@@ -38,9 +38,14 @@ variable "sku" {
 variable "client_configuration" {
   description = "If set it will activate point-to-site configuration."
   type = object({
-    address_space = string
+    address_space = list(string)
     protocols     = list(string)
     certificate   = string
+    auth_types    = list(string)
+    revoked_certificates = optional(map(object({
+      name       = string
+      thumbprint = string
+    })), {})
   })
   default = null
 }
