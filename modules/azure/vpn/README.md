@@ -58,7 +58,7 @@ module "p2svpn" {
         certificate = data.azurerm_key_vault_secret.secrets["P2S-VPN-DEVICES-ROOT-CERTIFICATE"].value
     }
 }
-
+```
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
