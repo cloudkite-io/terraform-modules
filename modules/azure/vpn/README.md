@@ -41,7 +41,7 @@ module "s2svpn" {
 }
 ```
 
-example using static routes for p2svpn
+example for p2svpn
 
 ```shell
 module "p2svpn" {
