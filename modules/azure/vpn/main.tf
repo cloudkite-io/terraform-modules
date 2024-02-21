@@ -79,7 +79,7 @@ resource "azurerm_virtual_network_gateway" "gw" {
         for_each = vpn.value.revoked_certificates
         content {
           name       = revoked_certificate.key
-          thumbprint = revoked_certificate.thumbprint
+          thumbprint = revoked_certificate.value.thumbprint
         }
       }
     }
