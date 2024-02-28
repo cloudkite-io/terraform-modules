@@ -62,7 +62,7 @@ resource "azurerm_subnet_nat_gateway_association" "subnet_nat_gateway_associatio
 
 resource "azurerm_network_security_group" "security_groups" {
   for_each = { for subnet, subnet-details in var.subnets :
-  subnet => subnet-details if subnet != "GatewaySubnet" }
+  subnet => subnet-details if length(subnet-details.security_rules) > 0 }
   name                = "${each.key}-NSG"
   location            = var.vnet_location
   resource_group_name = var.resource_group_name
@@ -92,7 +92,7 @@ resource "azurerm_network_security_group" "security_groups" {
 
 resource "azurerm_subnet_network_security_group_association" "subnet_security_groups_association" {
   for_each = { for subnet, subnet-details in var.subnets :
-  subnet => subnet-details if subnet != "GatewaySubnet" }
+  subnet => subnet-details if length(subnet-details.security_rules) > 0 }
   subnet_id                 = azurerm_subnet.subnets[each.key].id
   network_security_group_id = azurerm_network_security_group.security_groups[each.key].id
 }
