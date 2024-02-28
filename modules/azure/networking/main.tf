@@ -59,3 +59,35 @@ resource "azurerm_subnet_nat_gateway_association" "subnet_nat_gateway_associatio
   subnet_id      = azurerm_subnet.subnets[each.key].id
   nat_gateway_id = azurerm_nat_gateway.nat_gateway.id
 }
+
+resource "azurerm_network_security_group" "security_groups" {
+  for_each = { for subnet, subnet-details in var.subnets :
+  subnet => subnet-details if subnet != "GatewaySubnet" }
+  name                = "${each.key}-NSG"
+  location            = var.azure.location
+  resource_group_name = var.azure.resource_group_name
+
+  dynamic "security_rule" {
+    for_each = each.value.security_rules
+
+    content {
+      name                       = security_rule.key
+      priority                   = security_rule.value.priority
+      direction                  = security_rule.value.direction
+      access                     = security_rule.value.access
+      protocol                   = security_rule.value.protocol
+      source_port_range          = security_rule.value.source_port_range
+      destination_port_range     = security_rule.value.destination_port_range
+      source_address_prefix      = security_rule.value.source_address_prefix
+      destination_address_prefix = security_rule.value.destination_address_prefix
+    }
+
+  }
+}
+
+resource "azurerm_subnet_network_security_group_association" "subnet_security_groups_association" {
+  for_each = { for subnet, subnet-details in var.subnets :
+  subnet => subnet-details if subnet != "GatewaySubnet" }
+  subnet_id                 = module.networking.vnet_subnets[each.key].id
+  network_security_group_id = azurerm_network_security_group.security_groups[each.key].id
+}
