@@ -88,6 +88,6 @@ resource "azurerm_network_security_group" "security_groups" {
 resource "azurerm_subnet_network_security_group_association" "subnet_security_groups_association" {
   for_each = { for subnet, subnet-details in var.subnets :
   subnet => subnet-details if subnet != "GatewaySubnet" }
-  subnet_id                 = module.networking.vnet_subnets[each.key].id
+  subnet_id                 = azurerm_subnet.subnets[each.key].id
   network_security_group_id = azurerm_network_security_group.security_groups[each.key].id
 }
