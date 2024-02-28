@@ -64,8 +64,8 @@ resource "azurerm_network_security_group" "security_groups" {
   for_each = { for subnet, subnet-details in var.subnets :
   subnet => subnet-details if subnet != "GatewaySubnet" }
   name                = "${each.key}-NSG"
-  location            = var.azure.location
-  resource_group_name = var.azure.resource_group_name
+  location            = var.vnet_location
+  resource_group_name = var.resource_group_name
 
   dynamic "security_rule" {
     for_each = each.value.security_rules
