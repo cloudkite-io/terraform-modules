@@ -49,5 +49,10 @@ variable "subnets" {
       destination_address_prefixes          = optional(list(string))
       source_application_security_group_ids = optional(list(string))
     })), {})
+    routes = optional(map(object({
+      address_prefix         = string
+      next_hop_type          = string
+      next_hop_in_ip_address = optional(string)
+    })))
   }))
 }

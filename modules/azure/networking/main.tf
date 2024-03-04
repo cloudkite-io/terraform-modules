@@ -96,3 +96,44 @@ resource "azurerm_subnet_network_security_group_association" "subnet_security_gr
   subnet_id                 = azurerm_subnet.subnets[each.key].id
   network_security_group_id = azurerm_network_security_group.security_groups[each.key].id
 }
+
+resource "azurerm_route_table" "route_table" {
+  for_each = { for subnet, subnet-details in var.subnets :
+  subnet => subnet-details if length(subnet-details.routes) > 0 }
+  name                = "${each.key}-RouteTable"
+  location            = var.vnet_location
+  resource_group_name = var.resource_group_name
+
+
+  dynamic "route" {
+
+    for_each = { for route, route-details in each.value.routes :
+    route => route-details if route-details.next_hop_type != "VirtualAppliance" }
+
+    content {
+      name           = route.key
+      address_prefix = route.address_prefix
+      next_hop_type  = route.next_hop_type
+    }
+
+  }
+  dynamic "route" {
+
+    for_each = { for route, route-details in each.value.routes :
+    route => route-details if route-details.next_hop_type == "VirtualAppliance" }
+
+    content {
+      name                   = route.key
+      address_prefix         = route.address_prefix
+      next_hop_type          = route.next_hop_type
+      next_hop_in_ip_address = route.next_hop_in_ip_address
+    }
+
+  }
+
+}
+
+resource "azurerm_subnet_route_table_association" "subnet_route_table_association" {
+  subnet_id      = azurerm_subnet.subnets[each.key].id
+  route_table_id = azurerm_route_table.route_table[each.key].id
+}
