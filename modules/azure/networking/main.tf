@@ -134,6 +134,8 @@ resource "azurerm_route_table" "route_table" {
 }
 
 resource "azurerm_subnet_route_table_association" "subnet_route_table_association" {
+  for_each = { for subnet, subnet-details in var.subnets :
+  subnet => subnet-details if length(subnet-details.routes) > 0 }
   subnet_id      = azurerm_subnet.subnets[each.key].id
   route_table_id = azurerm_route_table.route_table[each.key].id
 }
