@@ -112,8 +112,8 @@ resource "azurerm_route_table" "route_table" {
 
     content {
       name           = route.key
-      address_prefix = route.address_prefix
-      next_hop_type  = route.next_hop_type
+      address_prefix = route.value.address_prefix
+      next_hop_type  = route.value.next_hop_type
     }
 
   }
@@ -124,9 +124,9 @@ resource "azurerm_route_table" "route_table" {
 
     content {
       name                   = route.key
-      address_prefix         = route.address_prefix
-      next_hop_type          = route.next_hop_type
-      next_hop_in_ip_address = route.next_hop_in_ip_address
+      address_prefix         = route.value.address_prefix
+      next_hop_type          = route.value.next_hop_type
+      next_hop_in_ip_address = route.value.next_hop_in_ip_address
     }
 
   }
