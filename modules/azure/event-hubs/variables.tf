@@ -3,30 +3,48 @@ variable "resource_group_name" {
   type        = string
 }
 
-variable "environment" {
-  description = "Environment like: infra-ops, dev, stage, prod"
-  type        = string
-}
-
 variable "location" {
   description = "Azure location"
   type        = string
 }
 
-variable "event_hub" {
-  description = "Azure event hub related configs"
-  type = object({
-    sku      = string
-    capacity = optional(number)
+variable "environment" {
+  description = "Environment like: infra-ops, dev, stage, prod"
+  type        = string
+}
+
+variable "vnet_name" {
+  description = "Name of the vnet on which private link is to be setup"
+  type        = string
+}
+
+variable "subnet_name" {
+  description = "Name of the subnet on which private link is to be setup"
+  type        = string
+}
+
+variable "event_hubs_namespaces" {
+  description = "Azure event hub configurations"
+  type = map(object({
+    sku            = string
+    capacity       = number
+    zone_redundant = bool
     auto_inflate = object({
-      enabled                  = optional(bool, false)
-      maximum_throughput_units = optional(number)
+      enabled                  = bool
+      maximum_throughput_units = number
     })
     network_rules = object({
-      ip_rules   = list(string)
-      subnet_ids = list(string)
+      ip_rules                       = list(string)
+      subnet_ids                     = list(string)
+      public_network_access_enabled  = bool
+      trusted_service_access_enabled = bool
     })
-
-  })
-
+    private_endpoint = object({
+      enabled = bool
+    })
+    event_hubs = map(object({
+      message_retention = number
+      partition_count   = number
+    }))
+  }))
 }
