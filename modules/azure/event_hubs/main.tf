@@ -113,7 +113,7 @@ resource "azurerm_key_vault_secret" "private_endpoint_connection_string" {
   event_hub_ns => event_hub_ns-details if event_hub_ns-details.private_endpoint.enabled }
   key_vault_id = var.key_vault_id
   name         = upper("${each.key}-EVENT-HUB-PRIVATE-LINK-URI")
-  value        = "Endpoint=sb://${azurerm_private_endpoint.private_endpoint[each.key].private_dns_zone_configs.recordsets[0].fqdn}/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=${azurerm_eventhub_namespace.events[each.key].default_primary_key}"
+  value        = "Endpoint=sb://${azurerm_private_endpoint.private_endpoint[each.key].private_dns_zone_configs.record_sets[0].fqdn}/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=${azurerm_eventhub_namespace.events[each.key].default_primary_key}"
 }
 
 resource "azurerm_eventhub" "event_hub" {
