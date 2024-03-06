@@ -6,7 +6,7 @@ It also provides capability to add private endpoint / network access.
 <!-- markdownlint-disable MD013 MD033 -->
 ```shell
 module "event_hubs" {
-  source              = "git::https://github.com/cloudkite-io/terraform-modules.git//modules/azure/event-hubs?ref=events-hub-module"
+  source              = "git::https://github.com/cloudkite-io/terraform-modules.git//modules/azure/event_hubs?ref=events-hub-module"
   location            = "us-east-1"
   resource_group_name = "example-resource-group"
   event_hubs_namespaces = {
