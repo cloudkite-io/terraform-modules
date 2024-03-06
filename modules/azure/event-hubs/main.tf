@@ -107,7 +107,7 @@ resource "azurerm_key_vault_secret" "connection_string" {
   event_hub_ns => event_hub_ns-details if event_hub_ns-details.private_endpoint.enabled != true }
   key_vault_id = var.key_vault_id
   name         = upper("${each.key}-EVENT-HUB-URI")
-  value        = azurerm_eventhub_namespace.events[each.key].default_primary_key_connection_string
+  value        = azurerm_eventhub_namespace.events[each.key].default_primary_connection_string
 }
 
 
