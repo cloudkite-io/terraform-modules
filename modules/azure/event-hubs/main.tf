@@ -8,7 +8,6 @@ locals {
         partition_count   = event_hub_details.partition_count
         message_retention = event_hub_details.message_retention
       }
-
     }
   ]...)
 }
@@ -90,8 +89,8 @@ resource "azurerm_private_endpoint" "private_endpoint" {
     private_connection_resource_id = azurerm_eventhub_namespace.events[each.key].id
     is_manual_connection           = false
     subresource_names              = ["namespace"]
-
   }
+
   private_dns_zone_group {
     name                 = "${each.key}-zone-group"
     private_dns_zone_ids = [azurerm_private_dns_zone.private_endpoint[0].id]
@@ -108,7 +107,6 @@ resource "azurerm_key_vault_secret" "connection_string" {
   name         = upper("${each.key}-EVENT-HUB-URI")
   value        = azurerm_eventhub_namespace.events[each.key].default_primary_connection_string
 }
-
 
 resource "azurerm_key_vault_secret" "private_endpoint_connection_string" {
   for_each = { for event_hub_ns, event_hub_ns-details in var.event_hubs_namespaces :
