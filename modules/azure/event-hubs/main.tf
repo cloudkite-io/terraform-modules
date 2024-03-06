@@ -99,7 +99,7 @@ resource "azurerm_private_endpoint" "private_endpoint" {
   }
 }
 
-#TODO: we are currently using RootManageSharedAccessKey we need to add authorization rules for specific apps
+#TODO: authorization rules for specific functionalities
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_authorization_rule
 
 resource "azurerm_key_vault_secret" "connection_string" {
