@@ -13,7 +13,6 @@ locals {
   ]...)
 }
 
-
 resource "azurerm_eventhub_namespace" "events" {
   for_each                      = var.event_hubs_namespaces
   name                          = "${each.key}-ns"
@@ -118,6 +117,7 @@ resource "azurerm_key_vault_secret" "private_endpoint_connection_string" {
   name         = upper("${each.key}-EVENT-HUB-PRIVATE-LINK-URI")
   value        = "Endpoint=sb://${azurerm_private_endpoint.private_endpoint[each.key].private_dns_zone_configs.recordsets.fqdn}/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=${azurerm_eventhub_namespace.events[each.key].default_primary_key}"
 }
+
 resource "azurerm_eventhub" "event_hub" {
   for_each            = local.event_hubs
   name                = each.value.name
