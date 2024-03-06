@@ -99,6 +99,25 @@ resource "azurerm_private_endpoint" "private_endpoint" {
   }
 }
 
+#TODO: we are currently using RootManageSharedAccessKey we need to add authorization rules for specific apps
+# https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_authorization_rule
+
+resource "azurerm_key_vault_secret" "connection_string" {
+  for_each = { for event_hub_ns, event_hub_ns-details in var.event_hubs_namespaces :
+  event_hub_ns => event_hub_ns-details if event_hub_ns-details.private_endpoint.enabled != true }
+  key_vault_id = var.key_vault_id
+  name         = upper("${each.key}-EVENT-HUB-URI")
+  value        = azurerm_eventhub_namespace.events[each.key].default_primary_key_connection_string
+}
+
+
+resource "azurerm_key_vault_secret" "private_endpoint_connection_string" {
+  for_each = { for event_hub_ns, event_hub_ns-details in var.event_hubs_namespaces :
+  event_hub_ns => event_hub_ns-details if event_hub_ns-details.private_endpoint.enabled }
+  key_vault_id = var.key_vault_id
+  name         = upper("${each.key}-EVENT-HUB-PRIVATE-LINK-URI")
+  value        = "Endpoint=sb://${azurerm_private_endpoint.private_endpoint[each.key].private_dns_zone_configs.recordsets.fqdn}/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=${azurerm_eventhub_namespace.events[each.key].default_primary_key}"
+}
 resource "azurerm_eventhub" "event_hub" {
   for_each            = local.event_hubs
   name                = each.value.name

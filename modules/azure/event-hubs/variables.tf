@@ -23,6 +23,10 @@ variable "subnet_name" {
   type        = string
 }
 
+variable "key_vault_id" {
+  description = "Id of the Keyvault where event hub primary connection strings are stored"
+  type        = string
+}
 variable "event_hubs_namespaces" {
   description = "Azure event hub configurations"
   type = map(object({
