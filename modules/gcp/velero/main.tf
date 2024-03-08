@@ -29,13 +29,13 @@ resource "google_project_iam_custom_role" "velero-server" {
     "compute.disks.get",
     "compute.disks.create",
     "compute.disks.createSnapshot",
+    "compute.projects.get",
     "compute.snapshots.get",
     "compute.snapshots.create",
     "compute.snapshots.useReadOnly",
     "compute.snapshots.delete",
     "compute.zones.get",
     "iam.serviceAccounts.signBlob",
-    "compute.projects.get",
   ]
 }
 
