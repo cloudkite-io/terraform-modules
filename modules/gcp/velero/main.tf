@@ -34,7 +34,8 @@ resource "google_project_iam_custom_role" "velero-server" {
     "compute.snapshots.useReadOnly",
     "compute.snapshots.delete",
     "compute.zones.get",
-    "iam.serviceAccounts.signBlob"
+    "iam.serviceAccounts.signBlob",
+    "compute.projects.get",
   ]
 }
 
