@@ -18,7 +18,7 @@ resource "azurerm_public_ip" "gw" {
   location            = var.location
   resource_group_name = var.resource_group_name
 
-  allocation_method = "Static"
+  allocation_method = var.sku == "Basic" ? "Dynamic" : "Static"
   sku               = var.sku == "Basic" ? "Basic" : "Standard"
 }
 
