@@ -19,7 +19,7 @@ resource "azurerm_public_ip" "gw" {
   resource_group_name = var.resource_group_name
 
   allocation_method = "Static"
-  sku               = "Standard"
+  sku               = var.sku == "Basic" ? "Basic" : "Standard"
 }
 
 resource "azurerm_public_ip" "gw_aa" {
