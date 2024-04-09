@@ -20,14 +20,16 @@ variable "event_hubs_namespaces" {
       maximum_throughput_units = number
     })
     public_network_access_enabled  = optional(bool, false)
-    public_uri_key_vault_ids       = optional(list(string), [])
     trusted_service_access_enabled = optional(bool, false)
     ip_rules                       = optional(list(string), [])
+    public_uri_key_vaults = optional(map(object({
+      resource_group_name = string
+    })), {})
     subnets = optional(map(object({
       vnet_name               = string
       resource_group_name     = string
       location                = string
-      key_vault_id            = optional(string, null)
+      key_vault_name          = optional(string, null)
       create_private_endpoint = optional(bool, false)
     })), {})
     event_hubs = map(object({

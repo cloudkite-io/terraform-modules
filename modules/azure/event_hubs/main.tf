@@ -8,7 +8,7 @@ locals {
         vnet_name               = subnet_details.vnet_name
         resource_group_name     = subnet_details.resource_group_name
         location                = subnet_details.location
-        key_vault_id            = subnet_details.key_vault_id
+        key_vault               = subnet_details.key_vault_name
         create_private_endpoint = subnet_details.create_private_endpoint
       }
     }
@@ -57,19 +57,25 @@ resource "azurerm_eventhub_namespace" "events" {
 locals {
   public_uri_key_vault_ids = merge([
     for event_hub_ns, event_hub_ns_details in var.event_hubs_namespaces : {
-      for key_vault_id in event_hub_ns_details.public_uri_key_vault_ids :
-      "${event_hub_ns}-${key_vault_id}" => {
-        namespace    = event_hub_ns
-        key_vault_id = key_vault_id
+      for key_vault, key_vault_details in event_hub_ns_details.public_uri_key_vaults :
+      "${event_hub_ns}-${key_vault}" => {
+        namespace           = event_hub_ns
+        key_vault           = key_vault
+        resource_group_name = key_vault_details.resource_group_name
       }
-      if key_vault_id != null
     }
   ]...)
 }
 
+data "azurerm_key_vault" "public_uri_key_vaults" {
+  for_each            = local.public_uri_key_vault_ids
+  name                = each.value.key_vault
+  resource_group_name = each.value.resource_group_name
+}
+
 resource "azurerm_key_vault_secret" "connection_string" {
   for_each     = local.public_uri_key_vault_ids
-  key_vault_id = each.value.key_vault_id
+  key_vault_id = data.azurerm_key_vault.public_uri_key_vaults[each.key].id
   name         = upper("${each.value.namespace}-NS-DEFAULT-PRIMARY-CONNECTION-STRING-EVENT-HUB-URI")
   value        = azurerm_eventhub_namespace.events[each.value.namespace].default_primary_connection_string
 }
@@ -130,13 +136,23 @@ resource "azurerm_private_endpoint" "private_endpoint" {
   }
 }
 
+data "azurerm_key_vault" "private_uri_key_vaults" {
+  for_each = {
+    for ehns_key, ehns_details in local.event_hub_ns_subnets :
+    ehns_key => ehns_details
+    if ehns_details.create_private_endpoint && ehns_details.key_vault != null
+  }
+  name                = each.value.key_vault
+  resource_group_name = each.value.resource_group_name
+}
+
 resource "azurerm_key_vault_secret" "private_endpoint_connection_string" {
   for_each = {
     for ehns_key, ehns_details in local.event_hub_ns_subnets :
     ehns_key => ehns_details
-    if ehns_details.create_private_endpoint && ehns_details.key_vault_id != null
+    if ehns_details.create_private_endpoint && ehns_details.key_vault != null
   }
-  key_vault_id = each.value.key_vault_id
+  key_vault_id = data.azurerm_key_vault.private_uri_key_vaults[each.key].id
   name         = upper("${each.value.namespace}-NS-DEFAULT-PRIMARY-CONNECTION-STRING-EVENT-HUB-PRIVATE-LINK-URI")
   value        = "Endpoint=sb://${azurerm_private_endpoint.private_endpoint[each.key].private_dns_zone_configs[0].record_sets[0].fqdn}/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=${azurerm_eventhub_namespace.events[each.value.namespace].default_primary_key}"
 }
@@ -151,7 +167,7 @@ locals {
         partition_count               = event_hub_details.partition_count
         message_retention             = event_hub_details.message_retention
         public_network_access_enabled = event_hub_ns_details.public_network_access_enabled
-        public_uri_key_vault_ids      = event_hub_ns_details.public_uri_key_vault_ids
+        public_uri_key_vaults         = event_hub_ns_details.public_uri_key_vaults
         authorization_rules           = event_hub_details.authorization_rules
         subnets                       = event_hub_ns_details.subnets
       }
@@ -173,10 +189,11 @@ locals {
     for event_hub_key, event_hub_details in local.event_hubs : {
       for auth_rule, auth_rule_details in event_hub_details.authorization_rules :
       "${event_hub_key}-${auth_rule}" => {
+        event_hub_key                 = event_hub_key
         namespace                     = event_hub_details.namespace
         hub_name                      = event_hub_details.name
         public_network_access_enabled = event_hub_details.public_network_access_enabled
-        public_uri_key_vault_ids      = event_hub_details.public_uri_key_vault_ids
+        public_uri_key_vaults         = event_hub_details.public_uri_key_vaults
         name                          = auth_rule
         listen                        = auth_rule_details.listen
         send                          = auth_rule_details.send
@@ -191,7 +208,7 @@ resource "azurerm_eventhub_authorization_rule" "authorization_rules" {
   for_each            = local.authorization_rules
   name                = each.value.name
   namespace_name      = azurerm_eventhub_namespace.events[each.value.namespace].name
-  eventhub_name       = azurerm_eventhub.event_hub[each.value.hub_name].name
+  eventhub_name       = azurerm_eventhub.event_hub[each.value.event_hub_key].name
   resource_group_name = var.resource_group_name
   listen              = each.value.listen
   send                = each.value.send
@@ -201,22 +218,28 @@ resource "azurerm_eventhub_authorization_rule" "authorization_rules" {
 locals {
   public_authorization_rules = merge([
     for auth_rule_key, auth_rule_details in local.authorization_rules : {
-      for key_vault_id in auth_rule_details.public_uri_key_vault_ids :
-      "${auth_rule_key}-${key_vault_id}" => {
-        auth_rule_key = auth_rule_key
-        namespace     = auth_rule_details.namespace
-        hub_name      = auth_rule_details.hub_name
-        name          = auth_rule_details.name
-        key_vault_id  = key_vault_id
+      for key_vault, key_vault_details in auth_rule_details.public_uri_key_vaults :
+      "${auth_rule_key}-${key_vault}" => {
+        auth_rule_key                 = auth_rule_key
+        namespace                     = auth_rule_details.namespace
+        hub_name                      = auth_rule_details.hub_name
+        name                          = auth_rule_details.name
+        key_vault                     = key_vault
+        key_vault_resource_group_name = key_vault_details.resource_group_name
       }
-      if key_vault_id != null
     }
   ]...)
 }
 
+data "azurerm_key_vault" "hub_specific_key_vaults" {
+  for_each            = local.public_authorization_rules
+  name                = each.value.key_vault
+  resource_group_name = each.value.key_vault_resource_group_name
+}
+
 resource "azurerm_key_vault_secret" "hub_specific_connection_string" {
   for_each     = local.public_authorization_rules
-  key_vault_id = each.value.public_uri_key_vault_id
+  key_vault_id = data.azurerm_key_vault.hub_specific_key_vaults[each.key].id
   name         = upper("${each.value.namespace}-NS-${each.value.hub_name}-HUB-${each.value.name}-RULE-PUBLIC-EVENT-HUB-URI")
   value        = azurerm_eventhub_authorization_rule.authorization_rules[each.value.auth_rule_key].primary_connection_string
 }
@@ -232,16 +255,23 @@ locals {
         hub_name                 = auth_rule_details.hub_name
         name                     = auth_rule_details.name
         subnet_name              = subnet
-        key_vault_id             = subnet_details.key_vault_id
+        resource_group_name      = subnet_details.resource_group_name
+        key_vault                = subnet_details.key_vault_name
       }
-      if subnet_details.create_private_endpoint && subnet_details.key_vault_id != null
+      if subnet_details.create_private_endpoint && subnet_details.key_vault_name != null
     }
   ]...)
 }
 
+data "azurerm_key_vault" "hub_specific_private_endpoint_key_vaults" {
+  for_each            = local.private_authorization_rules
+  name                = each.value.key_vault
+  resource_group_name = each.value.resource_group_name
+}
+
 resource "azurerm_key_vault_secret" "private_endpoint_hub_specific_connection_string" {
   for_each     = local.private_authorization_rules
-  key_vault_id = each.value.key_vault_id
+  key_vault_id = data.azurerm_key_vault.hub_specific_private_endpoint_key_vaults[each.key].id
   name         = upper("${each.value.namespace}-NS-${each.value.hub_name}-HUB-${each.value.name}-RULE-EVENT-HUB-PRIVATE-LINK-URI")
   value        = "Endpoint=sb://${azurerm_private_endpoint.private_endpoint[each.value.event_hub_ns_subnets_key].private_dns_zone_configs[0].record_sets[0].fqdn}/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=${azurerm_eventhub_authorization_rule.authorization_rules[each.value.auth_rule_key].primary_key}"
 }
