@@ -1,6 +1,6 @@
 # Terraform Azure FrontDoor module
 
-This Terraform module creates Azure frondoor profile,origin groups,
+This Terraform module creates Azure frontdoor profile,origin groups,
 origins, custom domains & routes.
 
 <!-- markdownlint-disable MD013 MD033 -->
