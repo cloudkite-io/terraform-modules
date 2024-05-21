@@ -15,7 +15,6 @@ module "front_door" {
       azureadb2c = {
         origin_group = {
           health_probe_enabled   = false
-          load_balancing_enabled = false
           origins = {
           azureadb2c = {
             hostname           = "bar.domain.com"
