@@ -8,7 +8,8 @@ origins, custom domains & routes.
 module "front_door" {
   source              = "git::https://github.com/cloudkite-io/terraform-modules.git//modules/azure/front_door?ref=add-azure-front-door-module"
   resource_group_name = "example-resource-group"
-  event_hubs_namespaces = dev = {
+  frontdoor_profile   = { 
+  dev = {
     sku_name                 = "Standard_AzureFrontDoor"
     response_timeout_seconds = 120
     routes = {
@@ -31,6 +32,7 @@ module "front_door" {
 
     }
   }
+}
 }
 ```
 
