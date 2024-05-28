@@ -58,13 +58,13 @@ module "networking" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.3.0 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >=3.53.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >=3.105.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >=3.53.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >=3.105.0 |
 
 ## Modules
 
@@ -91,7 +91,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment like: infra-ops, dev, stage, prod | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Azure resource group name | `string` | n/a | yes |
-| <a name="input_subnets"></a> [subnets](#input\_subnets) | Azure subnets and their configuration | <pre>map(object({<br>    address_prefixes                          = list(string)<br>    enable_nat                                = bool<br>    service_endpoints                         = list(string)<br>    private_endpoint_network_policies_enabled = bool<br>    delegations = map(object({<br>      service_delegation_name    = string<br>      service_delegation_actions = list(string)<br>    }))<br>    security_rules = optional(map(object({<br>      priority                              = number<br>      direction                             = string<br>      access                                = string<br>      protocol                              = string<br>      source_port_range                     = optional(string)<br>      source_port_ranges                    = optional(list(string))<br>      destination_port_range                = optional(string)<br>      destination_port_ranges               = optional(list(string))<br>      source_address_prefix                 = optional(string)<br>      source_address_prefixes               = optional(list(string))<br>      destination_address_prefix            = optional(string)<br>      destination_address_prefixes          = optional(list(string))<br>      source_application_security_group_ids = optional(list(string))<br>    })), {})<br>    routes = optional(map(object({<br>      address_prefix         = string<br>      next_hop_type          = string<br>      next_hop_in_ip_address = optional(string)<br>    })))<br>  }))</pre> | n/a | yes |
+| <a name="input_subnets"></a> [subnets](#input\_subnets) | Azure subnets and their configuration | <pre>map(object({<br>    address_prefixes                  = list(string)<br>    enable_nat                        = bool<br>    service_endpoints                 = list(string)<br>    private_endpoint_network_policies = string # Allowed values: "Disabled", "Enabled", "NetworkSecurityGroupEnabled" and "RouteTableEnabled"<br>    delegations = map(object({<br>      service_delegation_name    = string<br>      service_delegation_actions = list(string)<br>    }))<br>    security_rules = optional(map(object({<br>      priority                              = number<br>      direction                             = string<br>      access                                = string<br>      protocol                              = string<br>      source_port_range                     = optional(string)<br>      source_port_ranges                    = optional(list(string))<br>      destination_port_range                = optional(string)<br>      destination_port_ranges               = optional(list(string))<br>      source_address_prefix                 = optional(string)<br>      source_address_prefixes               = optional(list(string))<br>      destination_address_prefix            = optional(string)<br>      destination_address_prefixes          = optional(list(string))<br>      source_application_security_group_ids = optional(list(string))<br>    })), {})<br>    routes = optional(map(object({<br>      address_prefix         = string<br>      next_hop_type          = string<br>      next_hop_in_ip_address = optional(string)<br>    })))<br>  }))</pre> | n/a | yes |
 | <a name="input_vnet_address_space"></a> [vnet\_address\_space](#input\_vnet\_address\_space) | Address space for the virtual network | `list(string)` | n/a | yes |
 | <a name="input_vnet_location"></a> [vnet\_location](#input\_vnet\_location) | Azure location for the virtual network | `string` | n/a | yes |
 | <a name="input_vnet_name"></a> [vnet\_name](#input\_vnet\_name) | Name for the virtual network | `string` | n/a | yes |
