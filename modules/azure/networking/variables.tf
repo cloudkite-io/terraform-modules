@@ -26,10 +26,10 @@ variable "vnet_address_space" {
 variable "subnets" {
   description = "Azure subnets and their configuration"
   type = map(object({
-    address_prefixes                          = list(string)
-    enable_nat                                = bool
-    service_endpoints                         = list(string)
-    private_endpoint_network_policies_enabled = bool
+    address_prefixes                  = list(string)
+    enable_nat                        = bool
+    service_endpoints                 = list(string)
+    private_endpoint_network_policies = string # Allowed values: "Disabled", "Enabled", "NetworkSecurityGroupEnabled" and "RouteTableEnabled"
     delegations = map(object({
       service_delegation_name    = string
       service_delegation_actions = list(string)
