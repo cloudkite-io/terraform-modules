@@ -18,6 +18,11 @@ variable "vnet_location" {
   type        = string
 }
 
+variable "availability_zones" {
+  description = "Availability zones for nat gateway and public ips"
+  type        = list(string) 
+}
+
 variable "vnet_address_space" {
   description = "Address space for the virtual network"
   type        = list(string)

@@ -27,12 +27,12 @@ resource "azurerm_subnet" "subnets" {
 
 resource "azurerm_public_ip" "nat_address" {
   count               = 2
-  name                = "nat-external-address-${count.index}"
+  name                = "${var.environment}-nat-external-address-${count.index}"
   location            = var.vnet_location
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
-  zones               = ["1"]
+  zones               = var.availability_zones
 }
 
 resource "azurerm_nat_gateway" "nat_gateway" {
@@ -41,7 +41,7 @@ resource "azurerm_nat_gateway" "nat_gateway" {
   resource_group_name     = var.resource_group_name
   sku_name                = "Standard"
   idle_timeout_in_minutes = 10
-  zones                   = ["1"]
+  zones                   = var.availability_zones
 }
 
 resource "azurerm_nat_gateway_public_ip_association" "nat_address_gateway_association" {
