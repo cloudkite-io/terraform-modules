@@ -26,6 +26,7 @@ variable "vnet_address_space" {
 variable "nat_prefix" {
   description = "Prefix of the nat gateway & public ip address"
   type        = string
+  default     = ""
 
 }
 variable "subnets" {
