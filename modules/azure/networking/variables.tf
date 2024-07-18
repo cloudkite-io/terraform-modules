@@ -1,8 +1,3 @@
-variable "environment" {
-  description = "Environment like: infra-ops, dev, stage, prod"
-  type        = string
-}
-
 variable "resource_group_name" {
   description = "Azure resource group name"
   type        = string
@@ -28,6 +23,11 @@ variable "vnet_address_space" {
   type        = list(string)
 }
 
+variable "nat_prefix" {
+  description = "Prefix of the nat gateway & public ip address"
+  type        = string
+
+}
 variable "subnets" {
   description = "Azure subnets and their configuration"
   type = map(object({
