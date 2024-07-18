@@ -20,7 +20,7 @@ variable "vnet_location" {
 
 variable "availability_zones" {
   description = "Availability zones for nat gateway and public ips"
-  type        = list(string) 
+  type        = list(string)
 }
 
 variable "vnet_address_space" {
