@@ -36,7 +36,7 @@ resource "azurerm_public_ip" "nat_address" {
 }
 
 resource "azurerm_nat_gateway" "nat_gateway" {
-  name                    = "${var.nat_prefix}nat-gateway"
+  name                    = "${var.nat_prefix}-nat-gateway"
   location                = var.vnet_location
   resource_group_name     = var.resource_group_name
   sku_name                = "Standard"
