@@ -27,8 +27,14 @@ variable "nat_prefix" {
   description = "Prefix of the nat gateway & public ip address"
   type        = string
   default     = ""
-
 }
+
+variable "ip_prefix" {
+  description = "Prefix of the nat public ip address"
+  type        = string
+  default     = ""
+}
+
 variable "subnets" {
   description = "Azure subnets and their configuration"
   type = map(object({
