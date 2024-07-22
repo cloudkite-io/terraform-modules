@@ -41,6 +41,7 @@ resource "azurerm_eventhub_namespace" "events" {
   maximum_throughput_units      = each.value.auto_inflate.enabled && each.value.sku == "Standard" ? each.value.auto_inflate.maximum_throughput_units : null
   zone_redundant                = each.value.zone_redundant
   public_network_access_enabled = length(each.value.ip_rules) > 0 || length(lookup(local.subnets_no_private_endpoint, each.key, [])) > 0 ? true : each.value.public_network_access_enabled
+
   network_rulesets {
     default_action                 = "Deny"
     public_network_access_enabled  = length(each.value.ip_rules) > 0 || length(lookup(local.subnets_no_private_endpoint, each.key, [])) > 0 ? true : each.value.public_network_access_enabled
@@ -59,6 +60,12 @@ resource "azurerm_eventhub_namespace" "events" {
         subnet_id                                       = data.azurerm_subnet.private_endpoint_subnet["${each.key}-${subnet_details.vnet_name}-${subnet_details.resource_group_name}-${subnet_details.location}-${subnet}"].id
       }
       if subnet_details.create_private_endpoint == false
+    ]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      capacity,
     ]
   }
 }
