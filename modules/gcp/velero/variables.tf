@@ -22,3 +22,8 @@ variable "backups_bucket_location" {
   description = "The location of the bucket used by velero to storage backups."
   type        = string
 }
+
+variable "soft_delete_policy" {
+  description = "The soft delete policy to use when deleting the bucket"
+  type = number
+}

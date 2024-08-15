@@ -3,6 +3,9 @@ resource "google_storage_bucket" "backups" {
   project  = var.backup_project
   name     = var.backups_bucket_name
   location = var.backups_bucket_location
+  soft_delete_policy {
+    retention_duration_seconds = try(var.soft_delete_policy, 0)
+  }
 }
 
 # Create a service account for Velero
