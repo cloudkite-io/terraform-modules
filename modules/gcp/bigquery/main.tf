@@ -12,7 +12,7 @@ locals {
         }
       ]
     ])
-    
+
   bq_datasets_access_policy = flatten([
     for dataset_key, values in var.bq_datasets : [
       for role_key, members in lookup(values, "access") : {
@@ -171,8 +171,11 @@ resource "google_bigquery_data_transfer_config" "cloudsql_postgres_transfer" {
     "connector.authentication.username": each.value.username
     "connector.authentication.password": var.postgres_password
     "connector.database": each.value.database
-    "connector.endpoint.host": each.value.source_connection_name
+    "connector.endpoint.host": each.value.host
     "connector.endpoint.port": 5432
+    "connector.encryptionMode": each.value.encryption_mode
+    "connector.networkAttachment": each.value.network_attachment
+    "connector.schema": each.value.schema
     
   }
   service_account_name = var.service_account_email
