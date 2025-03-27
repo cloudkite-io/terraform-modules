@@ -1,11 +1,17 @@
+variable "project" {
+  description = "The project ID to host the cluster in (required)"
+  type        = string
+}
+
+variable "service_account_email" {
+  description = "The email of the custom service account."
+  type        = string
+}
+
+
 variable "bq_datasets" {
   type        = map(any)
   description = "BQ Datasets to create."
-}
-
-variable "bq_tables" {
-  type        = map(any)
-  description = "BQ Tables to create."
 }
 
 variable "stored_procedures" {
@@ -13,14 +19,20 @@ variable "stored_procedures" {
   description = "Stored Procedures to create."
 }
 
-variable "scheduled_queries" {
+variable "cloudsql_scheduled_postgres_transfers" {
   type        = map(any)
-  description = "Scheduled Queries to create."
+  description = "CloudSQL Postgres configurations for scheduled transfers."
 }
 
 variable "cloudsql_connections" {
   type        = map(any)
   description = "BQ CloudSQL External connection"
+}
+
+variable "clickhouse_connections" {
+  type        = map(any)
+  description = "BQ Clickhouse External connection"
+  default     = {}
 }
 
 variable "postgres_password" {

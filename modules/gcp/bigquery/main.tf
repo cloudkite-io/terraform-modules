@@ -1,4 +1,18 @@
 locals {
+  
+  bq_tables = flatten([
+    for dataset_key, values in var.bq_datasets : [
+      for table_key, values in lookup(values, "tables") : {
+        dataset_id = dataset_key
+        table_id   = table_key
+        # schema     = values.schema
+        # deletion_protection = values.deletion_protection
+        # friendly_name = values.friendly_name
+        # connection_name = values.source_connection_name
+        }
+      ]
+    ])
+    
   bq_datasets_access_policy = flatten([
     for dataset_key, values in var.bq_datasets : [
       for role_key, members in lookup(values, "access") : {
@@ -13,41 +27,29 @@ locals {
     env = "epicore-stage"
   }
 
-  bq_tables = flatten([
-    for dataset_key, values in var.bq_datasets : [
-      for table_key, values in lookup(values, "tables") : {
-        dataset_id = dataset_key
-        table_id   = table_key
-        # schema     = values.schema
-        # deletion_protection = values.deletion_protection
-        # friendly_name = values.friendly_name
-        # connection_name = values.source_connection_name
-        }
-      ]
-    ])
-
   postgres_password = var.postgres_password
 
   stored_procedures = {}
-  scheduled_queries = {}
+  cloudsql_scheduled_postgres_transfers = {}
 }
 
 
 resource "google_project_service" "bigquerydatatransfer"{
-  project = var.gcp.project
+  project = var.project
   service = "bigquerydatatransfer.googleapis.com"
 }
 
 resource "google_project_service" "bigquery"{
-  project = var.gcp.project
+  project = var.project
   service = "bigquery.googleapis.com"
 }
+
 resource "google_bigquery_dataset" "bq_datasets" {
   # depends_on            = [google_bigquery_connection.connection]
   for_each              = var.bq_datasets
   dataset_id            = each.key
-  location              = each.value.location
-  project               = var.gcp.project
+  location              = "US"
+  project               = var.project
   max_time_travel_hours = 168
 
   default_table_expiration_ms = 3600000
@@ -85,7 +87,7 @@ resource "google_bigquery_dataset_iam_binding" "bq_access" {
 #   }
 
 #   connection_id = each.key
-#   location      = each.value.location
+#   location      = "US"
 #   friendly_name = each.key
 #   cloud_sql {
 #       instance_id = each.value.instance_id
@@ -105,9 +107,9 @@ resource "google_bigquery_dataset_iam_binding" "bq_access" {
 #       cloudsql_connection.name => cloudsql_connection
 #       # if lookup(cloudsql_connection, "connectionType", "") == "gcs" : 
 #   }
-#   project = var.gcp.project
+#   project = var.project
 #   connection_id = each.key
-#   location      = try(each.value.location, "US")
+#   location      = "US"
 #   friendly_name = try(each.value.friendly_name, each.key)
 #   cloud_resource {}
 # # }
@@ -115,7 +117,7 @@ resource "google_bigquery_dataset_iam_binding" "bq_access" {
 # resource "google_bigquery_table" "bq_tables" {
 #   depends_on = [google_bigquery_dataset.bq_datasets]
 
-#   project             = var.gcp.project
+#   project             = var.project
 
 #   for_each = local.bq_tables
 
@@ -141,40 +143,38 @@ resource "google_bigquery_dataset_iam_binding" "bq_access" {
 # resource "google_bigquery_routine" "stored_procedures" {
 
 #   for_each = var.stored_procedures
-#   project      = var.gcp.project
+#   project      = var.project
 #   dataset_id   = google_bigquery_dataset.bq_datasets.dataset_id
 #   routine_id   = each.key
 #   routine_type = "PROCEDURE"
 #   language     = "SQL"
 #   definition_body = templatefile("$template_file_path",{
-#     project_id = var.gcp.project
+#     project_id = var.project
 #     dataset_id = google_bigquery_dataset.bq_datasets.dataset_id
 #     }
 #   )
 # }
 
-resource "google_bigquery_data_transfer_config" "postgres_transfer" {
-
-
-  for_each      = {
-    for dt_config in var.scheduled_queries: dt_config.name => dt_config
+resource "google_bigquery_data_transfer_config" "cloudsql_postgres_transfer" {
+  for_each = {
+    for dt_config in var.cloudsql_scheduled_postgres_transfers: dt_config.name => dt_config
   }
 
   display_name   = each.key
-  project        = var.gcp.project
-  location       = each.value.location
+  project        = var.project
+  location       = "US"
   data_source_id = "postgresql"
   schedule       = each.value.schedule
   destination_dataset_id = google_bigquery_dataset.bq_datasets[each.value.destination_dataset].dataset_id
   params = {
     "assets": jsonencode(each.value.source_table_names)
-    "connector.authentication.username": "postgres"
+    "connector.authentication.username": each.value.username
     "connector.authentication.password": var.postgres_password
     "connector.database": each.value.database
     "connector.endpoint.host": each.value.source_connection_name
     "connector.endpoint.port": 5432
     
   }
-  service_account_name = google_service_account.service-accounts["big-query-sa"].email
+  service_account_name = var.service_account_email
   depends_on = [google_bigquery_dataset.bq_datasets]
 }
