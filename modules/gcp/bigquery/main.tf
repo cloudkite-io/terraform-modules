@@ -174,7 +174,7 @@ resource "google_bigquery_data_transfer_config" "cloudsql_postgres_transfer" {
     "connector.endpoint.host": each.value.host
     "connector.endpoint.port": 5432
     "connector.encryptionMode": each.value.encryption_mode
-    "connector.networkAttachment": each.value.network_attachment
+    "connector.networkAttachment": try(each.value.network_attachment, null)
     "connector.schema": each.value.schema
     
   }
