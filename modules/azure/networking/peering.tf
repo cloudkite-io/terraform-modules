@@ -15,8 +15,8 @@ locals {
 resource "azurerm_virtual_network_peering" "network_peering" {
   for_each                     = var.peering
   name                         = each.key
-  resource_group_name          = var.azure.resource_group_name
-  virtual_network_name         = module.networking.vnet_name
+  resource_group_name          = var.resource_group_name
+  virtual_network_name         = azurerm_virtual_network.vnet.name
   remote_virtual_network_id    = each.value.remote_virtual_network_id
   allow_forwarded_traffic      = each.value.allow_forwarded_traffic
   allow_gateway_transit        = each.value.allow_gateway_transit
@@ -37,5 +37,5 @@ resource "azurerm_private_dns_zone_virtual_network_link" "peering_private_dns_vn
   name                  = each.key
   private_dns_zone_name = each.value.dns_link
   virtual_network_id    = each.value.remote_virtual_network_id
-  resource_group_name   = var.azure.resource_group_name
+  resource_group_name   = var.resource_group_name
 }
