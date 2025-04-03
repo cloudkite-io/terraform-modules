@@ -68,3 +68,17 @@ variable "subnets" {
     })))
   }))
 }
+
+variable "peering" {
+  description = "Vnet Peering configuration"
+  type = map(object({
+    remote_virtual_network_id    = optional(string)
+    allow_forwarded_traffic      = optional(bool, false)
+    allow_gateway_transit        = optional(bool, false)
+    allow_virtual_network_access = optional(bool, true)
+    use_remote_gateways          = optional(bool, false)
+    local_subnet_names           = optional(list(string))
+    remote_subnet_names          = optional(list(string))
+    private_dns_links            = optional(list(string))
+  }))
+}

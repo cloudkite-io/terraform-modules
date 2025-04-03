@@ -54,8 +54,8 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_dns_a_records"></a> [dns\_a\_records](#input\_dns\_a\_records) | Map with dns A records to create and their configurations | <pre>map(object({<br>    zone    = string<br>    records = list(string)<br>  }))</pre> | n/a | yes |
-| <a name="input_dns_cname_records"></a> [dns\_cname\_records](#input\_dns\_cname\_records) | Map with dns CNAME records to create and their configurations | <pre>map(object({<br>    zone   = string<br>    record = string<br>  }))</pre> | n/a | yes |
+| <a name="input_dns_a_records"></a> [dns\_a\_records](#input\_dns\_a\_records) | Map with dns A records to create and their configurations | <pre>map(object({<br/>    zone    = string<br/>    records = list(string)<br/>  }))</pre> | n/a | yes |
+| <a name="input_dns_cname_records"></a> [dns\_cname\_records](#input\_dns\_cname\_records) | Map with dns CNAME records to create and their configurations | <pre>map(object({<br/>    zone   = string<br/>    record = string<br/>  }))</pre> | n/a | yes |
 | <a name="input_dns_domain_zones"></a> [dns\_domain\_zones](#input\_dns\_domain\_zones) | List of Top level domains to create | `list(string)` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Azure resource group name | `string` | n/a | yes |
 
