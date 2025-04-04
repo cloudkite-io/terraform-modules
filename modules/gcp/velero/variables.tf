@@ -25,5 +25,5 @@ variable "backups_bucket_location" {
 
 variable "soft_delete_policy" {
   description = "The soft delete policy to use when deleting the bucket"
-  type = number
+  type        = number
 }

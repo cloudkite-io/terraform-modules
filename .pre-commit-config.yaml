@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/lyz-code/yamlfix/
-    rev: 1.9.0
+    rev: 1.17.0
     hooks:
       - id: yamlfix
         exclude: (.*.*/templates/.*.yaml|kubernetes/helm/application-charts/test-oh-std-lib/values.yaml)
@@ -19,7 +19,7 @@ repos:
       - id: terraform_docs
       - id: terraform_tflint
         args:
-          - --args=--module
+          - --args=--call-module-type=all
           - --args=--minimum-failure-severity=notice
           - --args=--config=.tflint.hcl
           - --args=--disable-rule terraform_naming_convention
