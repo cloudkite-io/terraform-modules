@@ -5,8 +5,8 @@ locals {
       for table_key, values in lookup(values, "tables") : {
         dataset_id = dataset_key
         table_id   = table_key
-        deletion_protection = values.deletion_protection
-        friendly_name = values.friendly_name
+        deletion_protection = try(values.deletion_protection, false)
+        friendly_name = try(values.friendly_name, table_key)
         description = try(values.description, null)
         source_uris = values.source_uris
         }
@@ -23,9 +23,7 @@ locals {
     ]
   ])
 
-  labels = {
-    env = "epicore-stage"
-  }
+  labels = var.labels
 
   postgres_password = var.postgres_password
 
@@ -54,7 +52,7 @@ resource "google_bigquery_dataset" "bq_datasets" {
   default_table_expiration_ms = 3600000
   friendly_name         = each.key
   description           = each.value.dataset_description
-  labels                = each.value.labels
+  labels                = local.labels
   delete_contents_on_destroy = each.value.force_destroy
 
 }
