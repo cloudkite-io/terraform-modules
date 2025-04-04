@@ -5,10 +5,10 @@ locals {
       for table_key, values in lookup(values, "tables") : {
         dataset_id = dataset_key
         table_id   = table_key
-        # schema     = values.schema
-        # deletion_protection = values.deletion_protection
-        # friendly_name = values.friendly_name
-        # connection_name = values.source_connection_name
+        deletion_protection = values.deletion_protection
+        friendly_name = values.friendly_name
+        description = try(values.description, null)
+        source_uris = values.source_uris
         }
       ]
     ])
@@ -45,7 +45,6 @@ resource "google_project_service" "bigquery"{
 }
 
 resource "google_bigquery_dataset" "bq_datasets" {
-  # depends_on            = [google_bigquery_connection.connection]
   for_each              = var.bq_datasets
   dataset_id            = each.key
   location              = "US"
@@ -58,15 +57,6 @@ resource "google_bigquery_dataset" "bq_datasets" {
   labels                = each.value.labels
   delete_contents_on_destroy = each.value.force_destroy
 
-  # access {
-  #   role   = "OWNER"
-  #   user_by_email = "big-query-sa@epicore-stage.iam.gserviceaccount.com"
-  # }
-
-  # access {
-  #   role   = "READER"
-  #   domain  = "epicorebiosystems.com"
-  # }
 }
 
 resource "google_bigquery_dataset_iam_binding" "bq_access" {
@@ -79,81 +69,6 @@ resource "google_bigquery_dataset_iam_binding" "bq_access" {
   members    = each.value.members
 }
 
-
-# resource "google_bigquery_connection" "cloudsql_connection" {
-
-#   for_each      = {
-#     for cloudsql_connection in var.cloudsql_connections: cloudsql_connection.name => cloudsql_connection
-#   }
-
-#   connection_id = each.key
-#   location      = "US"
-#   friendly_name = each.key
-#   cloud_sql {
-#       instance_id = each.value.instance_id
-#       database    = each.value.database
-#       type        = "POSTGRES"
-#       credential {
-#         username = "postgres"
-#         password = postgres_password
-#       }
-#   }
-# }
-
-# resource "google_bigquery_connection" "datalake_connection" {
-
-#   for_each      = {
-#     for cloudsql_connection in var.external_connections:
-#       cloudsql_connection.name => cloudsql_connection
-#       # if lookup(cloudsql_connection, "connectionType", "") == "gcs" : 
-#   }
-#   project = var.project
-#   connection_id = each.key
-#   location      = "US"
-#   friendly_name = try(each.value.friendly_name, each.key)
-#   cloud_resource {}
-# # }
-
-# resource "google_bigquery_table" "bq_tables" {
-#   depends_on = [google_bigquery_dataset.bq_datasets]
-
-#   project             = var.project
-
-#   for_each = local.bq_tables
-
-#   table_id            = each.key
-
-#   dataset_id          = each.value.dataset_id
-  
-#   deletion_protection = each.value.deletion_protection
-
-#   friendly_name      = each.value.friendly_name
-#   schema = each.value.schema
-
-
-#   external_data_configuration {
-#     autodetect = true
-
-#     connection_id = google_bigquery_connection.connection[each.value.connection_name].id
-#   }
-
-#   labels = local.labels
-# }
-
-# resource "google_bigquery_routine" "stored_procedures" {
-
-#   for_each = var.stored_procedures
-#   project      = var.project
-#   dataset_id   = google_bigquery_dataset.bq_datasets.dataset_id
-#   routine_id   = each.key
-#   routine_type = "PROCEDURE"
-#   language     = "SQL"
-#   definition_body = templatefile("$template_file_path",{
-#     project_id = var.project
-#     dataset_id = google_bigquery_dataset.bq_datasets.dataset_id
-#     }
-#   )
-# }
 
 resource "google_bigquery_data_transfer_config" "cloudsql_postgres_transfer" {
   for_each = {
@@ -180,4 +95,28 @@ resource "google_bigquery_data_transfer_config" "cloudsql_postgres_transfer" {
   }
   service_account_name = var.service_account_email
   depends_on = [google_bigquery_dataset.bq_datasets]
+}
+
+resource "google_bigquery_table" "bq_tables" {
+  depends_on = [google_bigquery_dataset.bq_datasets]
+
+  project             = var.project
+
+  for_each            = {
+    for table in local.bq_tables: table.table_id => table
+  }
+
+  table_id            = each.key
+  dataset_id          = each.value.dataset_id
+  deletion_protection = each.value.deletion_protection
+  friendly_name      = each.value.friendly_name
+  description        = try(each.value.description, null)
+
+  external_data_configuration {
+    autodetect = true # Parquet files used
+    source_format = "PARQUET"
+    source_uris = each.value.source_uris
+  }
+
+  labels = local.labels
 }

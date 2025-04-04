@@ -8,35 +8,19 @@ variable "service_account_email" {
   type        = string
 }
 
-
 variable "bq_datasets" {
   type        = map(any)
   description = "BQ Datasets to create."
 }
 
-variable "stored_procedures" {
-  type        = map(any)
-  description = "Stored Procedures to create."
-}
 
 variable "cloudsql_scheduled_postgres_transfers" {
   type        = map(any)
-  description = "CloudSQL Postgres configurations for scheduled transfers."
-}
-
-variable "cloudsql_connections" {
-  type        = map(any)
-  description = "BQ CloudSQL External connection"
-}
-
-variable "clickhouse_connections" {
-  type        = map(any)
-  description = "BQ Clickhouse External connection"
-  default     = {}
+  description = "Schedule"
 }
 
 variable "postgres_password" {
   type        = string
-  description = "Postgres Password, set export TF_VAR_postgres_password='your_secret_password'"
+  description = "Postgres Password, set by export TF_VAR_postgres_password=secret_password"
   sensitive   = true
 }
