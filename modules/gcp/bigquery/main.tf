@@ -49,7 +49,7 @@ resource "google_bigquery_dataset" "bq_datasets" {
   project               = var.project
   max_time_travel_hours = 168
 
-  default_table_expiration_ms = 3600000
+  # default_table_expiration_ms = 3600000 # 1 hr
   friendly_name         = each.key
   description           = each.value.dataset_description
   labels                = local.labels
