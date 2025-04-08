@@ -2,13 +2,13 @@ locals {
   
   bq_tables = flatten([
     for dataset_key, values in var.bq_datasets : [
-      for table_key, values in lookup(values, "tables") : {
+      for table_key, table_values in lookup(values, "tables") : {
         dataset_id = dataset_key
         table_id   = table_key
-        deletion_protection = try(values.deletion_protection, false)
-        friendly_name = try(values.friendly_name, table_key)
-        description = try(values.description, null)
-        source_uris = values.source_uris
+        deletion_protection = try(table_values.deletion_protection, false)
+        friendly_name = try(table_values.friendly_name, table_key)
+        description = try(table_values.description, null)
+        source_uris = table_values.source_uris
         }
       ]
     ])
