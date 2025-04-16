@@ -117,4 +117,10 @@ resource "google_bigquery_table" "bq_tables" {
   }
 
   labels = local.labels
+
+  lifecycle {
+    ignore_changes = [
+      external_data_configuration
+    ]
+  }
 }
