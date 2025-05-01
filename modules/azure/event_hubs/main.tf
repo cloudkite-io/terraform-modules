@@ -43,7 +43,7 @@ resource "azurerm_eventhub_namespace" "events" {
   public_network_access_enabled = length(each.value.ip_rules) > 0 || length(lookup(local.subnets_no_private_endpoint, each.key, [])) > 0 ? true : each.value.public_network_access_enabled
 
   network_rulesets {
-    default_action                 = "Deny"
+    default_action                 = each.value.public_network_access_enabled ? "Allow" : "Deny"
     public_network_access_enabled  = length(each.value.ip_rules) > 0 || length(lookup(local.subnets_no_private_endpoint, each.key, [])) > 0 ? true : each.value.public_network_access_enabled
     trusted_service_access_enabled = each.value.trusted_service_access_enabled
 
