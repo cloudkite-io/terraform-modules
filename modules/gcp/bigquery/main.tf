@@ -9,6 +9,7 @@ locals {
         friendly_name = try(table_values.friendly_name, table_key)
         description = try(table_values.description, null)
         source_uris = table_values.source_uris
+        source_format = try(table_values.source_format, "PARQUET")
         }
       ]
     ])
@@ -112,9 +113,15 @@ resource "google_bigquery_table" "bq_tables" {
 
   external_data_configuration {
     autodetect = true # Parquet files used
-    source_format = "PARQUET"
+    source_format = each.value.source_format
     source_uris = each.value.source_uris
   }
 
   labels = local.labels
+
+  lifecycle {
+    ignore_changes = [
+      external_data_configuration
+    ]
+  }
 }
