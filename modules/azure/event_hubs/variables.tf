@@ -32,6 +32,7 @@ variable "event_hubs_namespaces" {
       key_vault_name          = optional(string, null)
       create_private_endpoint = optional(bool, false)
     })), {})
+    extra_subnet_ids_no_private_endpoint = optional(list(string), [])
     event_hubs = map(object({
       message_retention = number
       partition_count   = number

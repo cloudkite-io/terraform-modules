@@ -13,21 +13,30 @@ locals {
       }
     }
   ]...)
-  subnets_no_private_endpoint = merge([
-    for event_hub_ns, event_hub_ns_details in var.event_hubs_namespaces : {
-      for subnet, subnet_details in event_hub_ns_details.subnets :
-      event_hub_ns => [subnet]...
-      if subnet_details.create_private_endpoint == false
-    }
-  ]...)
-
 }
 
-data "azurerm_subnet" "private_endpoint_subnet" {
+data "azurerm_subnet" "event_hub_subnet" {
   for_each             = local.event_hub_ns_subnets
   name                 = each.value.subnet_name
   virtual_network_name = each.value.vnet_name
   resource_group_name  = each.value.resource_group_name
+}
+
+locals {
+  subnets_no_private_endpoint = merge([
+    for event_hub_ns, event_hub_ns_details in var.event_hubs_namespaces : {
+      for subnet, subnet_details in event_hub_ns_details.subnets :
+      event_hub_ns => [data.azurerm_subnet.event_hub_subnet["${event_hub_ns}-${subnet_details.vnet_name}-${subnet_details.resource_group_name}-${subnet_details.location}-${subnet}"].id]...
+      if subnet_details.create_private_endpoint == false
+    }
+  ]...)
+  subnet_ids_no_private_endpoint = {
+    for event_hub_ns, event_hub_ns_details in var.event_hubs_namespaces :
+    event_hub_ns => concat(
+      flatten(lookup(local.subnets_no_private_endpoint, event_hub_ns, [])),
+      event_hub_ns_details.extra_subnet_ids_no_private_endpoint
+    )
+  }
 }
 
 resource "azurerm_eventhub_namespace" "events" {
@@ -40,11 +49,11 @@ resource "azurerm_eventhub_namespace" "events" {
   auto_inflate_enabled          = each.value.sku == "Standard" ? each.value.auto_inflate.enabled : false
   maximum_throughput_units      = each.value.auto_inflate.enabled && each.value.sku == "Standard" ? each.value.auto_inflate.maximum_throughput_units : null
   zone_redundant                = each.value.zone_redundant
-  public_network_access_enabled = length(each.value.ip_rules) > 0 || length(lookup(local.subnets_no_private_endpoint, each.key, [])) > 0 ? true : each.value.public_network_access_enabled
+  public_network_access_enabled = length(each.value.ip_rules) > 0 || length(lookup(local.subnet_ids_no_private_endpoint, each.key, [])) > 0 ? true : each.value.public_network_access_enabled
 
   network_rulesets {
     default_action                 = each.value.public_network_access_enabled ? "Allow" : "Deny"
-    public_network_access_enabled  = length(each.value.ip_rules) > 0 || length(lookup(local.subnets_no_private_endpoint, each.key, [])) > 0 ? true : each.value.public_network_access_enabled
+    public_network_access_enabled  = length(each.value.ip_rules) > 0 || length(lookup(local.subnet_ids_no_private_endpoint, each.key, [])) > 0 ? true : each.value.public_network_access_enabled
     trusted_service_access_enabled = each.value.trusted_service_access_enabled
 
     ip_rule = [
@@ -55,11 +64,10 @@ resource "azurerm_eventhub_namespace" "events" {
     ]
 
     virtual_network_rule = [
-      for subnet, subnet_details in each.value.subnets : {
+      for subnet_id in local.subnet_ids_no_private_endpoint[each.key] : {
         ignore_missing_virtual_network_service_endpoint = false
-        subnet_id                                       = data.azurerm_subnet.private_endpoint_subnet["${each.key}-${subnet_details.vnet_name}-${subnet_details.resource_group_name}-${subnet_details.location}-${subnet}"].id
+        subnet_id                                       = subnet_id
       }
-      if subnet_details.create_private_endpoint == false
     ]
   }
 
@@ -137,7 +145,7 @@ resource "azurerm_private_endpoint" "private_endpoint" {
   name                = "${each.value.vnet_name}-event-hub-ns-endpoint"
   location            = each.value.location
   resource_group_name = each.value.resource_group_name
-  subnet_id           = data.azurerm_subnet.private_endpoint_subnet[each.key].id
+  subnet_id           = data.azurerm_subnet.event_hub_subnet[each.key].id
 
   private_service_connection {
     name                           = "${each.value.vnet_name}-privateserviceconnection"
