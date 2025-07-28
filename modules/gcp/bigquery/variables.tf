@@ -27,4 +27,5 @@ variable "postgres_password" {
 
 variable "labels" {
   type        = map(any)
+  description = "Labels on the bigquery dataset"
 }
