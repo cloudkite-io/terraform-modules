@@ -27,3 +27,9 @@ variable "soft_delete_policy" {
   description = "The soft delete policy to use when deleting the bucket"
   type        = number
 }
+
+variable "backups_bucket_uniform_level_access" {
+  description = "Whether to enable uniform bucket-level access for the backups bucket."
+  type        = bool
+  default     = true
+}
