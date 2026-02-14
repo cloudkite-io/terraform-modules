@@ -46,8 +46,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
               }
             },
             "unitOverride": "Restarts"
-          },
-          "sparkChartType": "SPARK_LINE"
+          }
         }
       },
       {
@@ -63,8 +62,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
               }
             },
             "unitOverride": "Crashes"
-          },
-          "sparkChartType": "SPARK_BAR"
+          }
         }
       },
       {
