@@ -22,6 +22,14 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
   dashboard_json = <<EOF
 {
   "displayName": "1. Infrastructure Overview (PromQL)",
+  "dashboardFilters": [
+    {
+      "filterType": "RESOURCE_LABEL",
+      "labelKey": "project_id",
+      "templateVariable": "",
+      "valueType": "STRING"
+    }
+  ],
   "gridLayout": {
     "columns": "2",
     "widgets": [
