@@ -16,63 +16,83 @@ resource "google_logging_metric" "oom_events" {
 }
 
 # INFRASTRUCTURE DASHBOARD
+You are absolutely right. The increase[1h] function only shows you "What just happened?" (the delta). If a pod restarted 50 times yesterday but is stable today, increase[1h] would show 0.
+
+You want the Lifetime Count: "How many times has this specific pod restarted since it was created?"
+
+The Fix: Switch to "Raw" Counts
+We will remove the increase() function and just look at the container_restart_count metric directly.
+
+Old Query: increase(container_restart_count[1h]) -> Result: 0 (If it crashed yesterday).
+
+New Query: container_restart_count -> Result: 50 (Total crashes ever).
+
+Here is the updated Dashboard 1 code. I have updated the "Restarts" widget to show the Total Lifetime Restarts for every pod currently running.
+
+Updated: modules/baseline-monitoring/01_infrastructure.tf
+Terraform
+# ------------------------------------------------------------------------------
+# 1. LOG-BASED METRICS (Kept for safety)
+# ------------------------------------------------------------------------------
+resource "google_logging_metric" "oom_events" {
+  for_each = toset(var.monitored_project_ids)
+
+  name    = "k8s_oom_events"
+  project = each.value
+  
+  description = "Count of OOMKilled events from GKE containers"
+  filter      = "resource.type=\"k8s_container\" AND textPayload:\"OOMKilled\""
+  
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type  = "INT64"
+    unit        = "1"
+  }
+}
+
+# ------------------------------------------------------------------------------
+# 2. INFRASTRUCTURE DASHBOARD (PromQL - Lifetime Counts)
+# ------------------------------------------------------------------------------
 resource "google_monitoring_dashboard" "infrastructure_dashboard" {
   project      = var.infra_ops_project_id
   
   dashboard_json = <<EOF
 {
-  "displayName": "1. Infrastructure Overview",
-  "dashboardFilters": [
-    {
-      "filterType": "RESOURCE_LABEL",
-      "labelKey": "project_id",
-      "templateVariable": "project_id"
-    },
-    {
-      "filterType": "RESOURCE_LABEL",
-      "labelKey": "cluster_name",
-      "templateVariable": "cluster_name"
-    }
-  ],
+  "displayName": "1. Infrastructure Overview (PromQL)",
   "gridLayout": {
     "columns": "2",
     "widgets": [
       {
-        "title": "Unhealthy Nodes (Not Ready)",
+        "title": "Healthy Nodes (Kubelet Status)",
         "scorecard": {
           "timeSeriesQuery": {
-            "timeSeriesQueryLanguage": "fetch k8s_node | metric 'kubernetes.io/node/status_condition' | filter (metric.condition == 'Ready') | filter value == false | group_by [], count()",
+            "prometheusQuery": "count(up{job=\"kubelet\"} == 1)",
             "unitOverride": "Nodes"
-          }
+          },
+          "sparkChartType": "SPARK_LINE"
         }
       },
       {
-        "title": "Total Healthy Nodes",
+        "title": "Unhealthy/Down Nodes",
         "scorecard": {
           "timeSeriesQuery": {
-            "timeSeriesQueryLanguage": "fetch k8s_node | metric 'kubernetes.io/node/status_condition' | filter (metric.condition == 'Ready') | filter value == true | group_by [], count()",
+            "prometheusQuery": "count(up{job=\"kubelet\"} == 0) or vector(0)",
             "unitOverride": "Nodes"
-          }
+          },
+           "sparkChartType": "SPARK_BAR"
         }
       },
       {
-        "title": "Top Restarting Containers (By Pod Name)",
+        "title": "Cumulative Pod Restarts (Lifetime)",
         "xyChart": {
           "dataSets": [{
             "timeSeriesQuery": {
-              "timeSeriesFilter": {
-                "filter": "metric.type=\"kubernetes.io/container/restart_count\" resource.type=\"k8s_container\"",
-                "aggregation": {
-                  "perSeriesAligner": "ALIGN_DELTA",
-                  "crossSeriesReducer": "REDUCE_SUM",
-                  "groupByFields": ["resource.label.namespace_name", "resource.label.pod_name"]
-                }
-              }
+              "prometheusQuery": "topk(20, sum by (pod, namespace) (container_restart_count) > 0)"
             },
             "plotType": "STACKED_BAR"
           }],
           "yAxis": {
-             "label": "Restarts",
+             "label": "Total Restarts",
              "scale": "LINEAR"
           },
           "chartOptions": {
@@ -81,7 +101,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
         }
       },
       {
-        "title": "Top OOM Crashes (By Pod Name)",
+        "title": "Top OOM Crashes (Log-Based)",
         "xyChart": {
           "dataSets": [{
             "timeSeriesQuery": {
@@ -106,65 +126,39 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
         }
       },
       {
-        "title": "Disk Usage Table (Used vs Total)",
+        "title": "Disk Usage (Used vs Limit)",
         "timeSeriesTable": {
           "dataSets": [
             {
               "timeSeriesQuery": {
-                "timeSeriesFilter": {
-                  "filter": "metric.type=\"kubernetes.io/node/ephemeral_storage/used_bytes\" resource.type=\"k8s_node\"",
-                  "aggregation": {
-                    "perSeriesAligner": "ALIGN_NEXT_OLDER",
-                    "crossSeriesReducer": "REDUCE_SUM",
-                    "groupByFields": ["resource.label.node_name"]
-                  }
-                }
-              }
+                "prometheusQuery": "sum(container_fs_usage_bytes{device=~\".+\"}) by (instance)"
+              },
+              "tableTemplate": "Used"
             },
             {
               "timeSeriesQuery": {
-                "timeSeriesFilter": {
-                  "filter": "metric.type=\"kubernetes.io/node/ephemeral_storage/allocatable_bytes\" resource.type=\"k8s_node\"",
-                  "aggregation": {
-                    "perSeriesAligner": "ALIGN_NEXT_OLDER",
-                    "crossSeriesReducer": "REDUCE_SUM",
-                    "groupByFields": ["resource.label.node_name"]
-                  }
-                }
-              }
+                "prometheusQuery": "sum(container_fs_limit_bytes{device=~\".+\"}) by (instance)"
+              },
+              "tableTemplate": "Total"
             }
           ],
           "metricVisualization": "NUMBER"
         }
       },
       {
-        "title": "Disk IOPS (Read vs Write)",
+        "title": "Disk IOPS (Reads vs Writes)",
         "xyChart": {
           "dataSets": [
             {
               "timeSeriesQuery": {
-                "timeSeriesFilter": {
-                  "filter": "metric.type=\"compute.googleapis.com/instance/disk/read_ops_count\" resource.type=\"gce_instance\"",
-                  "aggregation": {
-                    "perSeriesAligner": "ALIGN_RATE",
-                    "crossSeriesReducer": "REDUCE_SUM"
-                  }
-                },
-                "unitOverride": "Read Ops"
+                "prometheusQuery": "sum(rate(container_fs_reads_total[5m])) by (instance)"
               },
               "plotType": "LINE",
               "legendTemplate": "Read IOPS"
             },
             {
               "timeSeriesQuery": {
-                "timeSeriesFilter": {
-                  "filter": "metric.type=\"compute.googleapis.com/instance/disk/write_ops_count\" resource.type=\"gce_instance\"",
-                  "aggregation": {
-                    "perSeriesAligner": "ALIGN_RATE",
-                    "crossSeriesReducer": "REDUCE_SUM"
-                  }
-                },
-                "unitOverride": "Write Ops"
+                "prometheusQuery": "sum(rate(container_fs_writes_total[5m])) by (instance)"
               },
               "plotType": "LINE",
               "legendTemplate": "Write IOPS"
