@@ -27,7 +27,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
       "filterType": "RESOURCE_LABEL",
       "labelKey": "project_id",
       "templateVariable": "project_id",
-      "labelValue": ""
+      "stringValue": ""
     }
   ],
   "gridLayout": {
