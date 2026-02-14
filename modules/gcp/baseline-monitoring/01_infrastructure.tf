@@ -31,8 +31,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
           "timeSeriesQuery": {
             "prometheusQuery": "count(up{job=\"kubelet\"} == 1)",
             "unitOverride": "Nodes"
-          },
-          "sparkChartType": "SPARK_LINE"
+          }
         }
       },
       {
@@ -41,8 +40,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
           "timeSeriesQuery": {
             "prometheusQuery": "count(up{job=\"kubelet\"} == 0) or vector(0)",
             "unitOverride": "Nodes"
-          },
-           "sparkChartType": "SPARK_BAR"
+          }
         }
       },
       {
