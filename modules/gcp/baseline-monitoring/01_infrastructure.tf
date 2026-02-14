@@ -21,47 +21,72 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
   
   dashboard_json = <<EOF
 {
-  "displayName": "1. Infrastructure Overview (PromQL)",
+  "displayName": "1. Infrastructure Overview",
   "dashboardFilters": [
     {
       "filterType": "RESOURCE_LABEL",
       "labelKey": "project_id",
-      "templateVariable": "",
-      "valueType": "STRING"
+      "templateVariable": "project_id"
+    },
+    {
+      "filterType": "RESOURCE_LABEL",
+      "labelKey": "cluster_name",
+      "templateVariable": "cluster_name"
     }
   ],
   "gridLayout": {
     "columns": "2",
     "widgets": [
       {
-        "title": "Healthy Nodes (Kubelet Status)",
+        "title": "Unhealthy Nodes (Not Ready)",
         "scorecard": {
           "timeSeriesQuery": {
-            "prometheusQuery": "count(up{job=\"kubelet\"} == 1)",
+            "timeSeriesFilter": {
+              "filter": "metric.type=\"kubernetes.io/node/status_condition\" resource.type=\"k8s_node\" metric.label.condition=\"Ready\" value.condition_state=\"false\"",
+              "aggregation": {
+                "perSeriesAligner": "ALIGN_NEXT_OLDER",
+                "crossSeriesReducer": "REDUCE_COUNT",
+                "alignmentPeriod": "60s"
+              }
+            },
             "unitOverride": "Nodes"
           }
         }
       },
       {
-        "title": "Unhealthy/Down Nodes",
+        "title": "Total Healthy Nodes",
         "scorecard": {
           "timeSeriesQuery": {
-            "prometheusQuery": "count(up{job=\"kubelet\"} == 0) or vector(0)",
+            "timeSeriesFilter": {
+              "filter": "metric.type=\"kubernetes.io/node/status_condition\" resource.type=\"k8s_node\" metric.label.condition=\"Ready\" value.condition_state=\"true\"",
+              "aggregation": {
+                "perSeriesAligner": "ALIGN_NEXT_OLDER",
+                "crossSeriesReducer": "REDUCE_COUNT",
+                "alignmentPeriod": "60s"
+              }
+            },
             "unitOverride": "Nodes"
           }
         }
       },
       {
-        "title": "Cumulative Pod Restarts (Lifetime)",
+        "title": "Top Restarting Containers (By Pod Name)",
         "xyChart": {
           "dataSets": [{
             "timeSeriesQuery": {
-              "prometheusQuery": "topk(20, sum by (pod, namespace) (container_restart_count) > 0)"
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"kubernetes.io/container/restart_count\" resource.type=\"k8s_container\"",
+                "aggregation": {
+                  "perSeriesAligner": "ALIGN_DELTA",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "groupByFields": ["resource.label.namespace_name", "resource.label.pod_name"]
+                }
+              }
             },
             "plotType": "STACKED_BAR"
           }],
           "yAxis": {
-             "label": "Total Restarts",
+             "label": "Restarts",
              "scale": "LINEAR"
           },
           "chartOptions": {
@@ -70,7 +95,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
         }
       },
       {
-        "title": "Top OOM Crashes (Log-Based)",
+        "title": "Top OOM Crashes (By Pod Name)",
         "xyChart": {
           "dataSets": [{
             "timeSeriesQuery": {
@@ -95,39 +120,65 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
         }
       },
       {
-        "title": "Disk Usage (Used vs Limit)",
+        "title": "Disk Usage Table (Used vs Total)",
         "timeSeriesTable": {
           "dataSets": [
             {
               "timeSeriesQuery": {
-                "prometheusQuery": "sum(container_fs_usage_bytes{device=~\".+\"}) by (instance)"
-              },
-              "tableTemplate": "Used"
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"kubernetes.io/node/ephemeral_storage/used_bytes\" resource.type=\"k8s_node\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_NEXT_OLDER",
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": ["resource.label.node_name"]
+                  }
+                }
+              }
             },
             {
               "timeSeriesQuery": {
-                "prometheusQuery": "sum(container_fs_limit_bytes{device=~\".+\"}) by (instance)"
-              },
-              "tableTemplate": "Total"
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"kubernetes.io/node/ephemeral_storage/allocatable_bytes\" resource.type=\"k8s_node\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_NEXT_OLDER",
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": ["resource.label.node_name"]
+                  }
+                }
+              }
             }
           ],
           "metricVisualization": "NUMBER"
         }
       },
       {
-        "title": "Disk IOPS (Reads vs Writes)",
+        "title": "Disk IOPS (Read vs Write)",
         "xyChart": {
           "dataSets": [
             {
               "timeSeriesQuery": {
-                "prometheusQuery": "sum(rate(container_fs_reads_total[5m])) by (instance)"
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/disk/read_ops_count\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                },
+                "unitOverride": "Read Ops"
               },
               "plotType": "LINE",
               "legendTemplate": "Read IOPS"
             },
             {
               "timeSeriesQuery": {
-                "prometheusQuery": "sum(rate(container_fs_writes_total[5m])) by (instance)"
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"compute.googleapis.com/instance/disk/write_ops_count\" resource.type=\"gce_instance\"",
+                  "aggregation": {
+                    "perSeriesAligner": "ALIGN_RATE",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                },
+                "unitOverride": "Write Ops"
               },
               "plotType": "LINE",
               "legendTemplate": "Write IOPS"
