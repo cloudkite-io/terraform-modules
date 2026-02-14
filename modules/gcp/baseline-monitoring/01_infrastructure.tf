@@ -38,7 +38,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
     "columns": "2",
     "widgets": [
       {
-        "title": "Unhealthy Nodes",
+        "title": "Unhealthy Nodes (Not Ready)",
         "scorecard": {
           "timeSeriesQuery": {
             "timeSeriesFilter": {
@@ -120,18 +120,8 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
         }
       },
       {
-        "title": "Disk Capacity & Usage (Table)",
-        "collapsibleGroup": {
-          "collapsed": false
-        },
-        "text": {
-          "content": "This table shows the current Used vs Total capacity per node.",
-          "format": "MARKDOWN"
-        }
-      },
-      {
-        "title": "Disk Usage Table",
-        "table": {
+        "title": "Disk Usage Table (Used vs Total)",
+        "timeSeriesTable": {
           "dataSets": [
             {
               "timeSeriesQuery": {
@@ -143,8 +133,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
                     "groupByFields": ["resource.label.node_name"]
                   }
                 }
-              },
-              "tableTemplate": "Used Bytes"
+              }
             },
             {
               "timeSeriesQuery": {
@@ -156,10 +145,10 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
                     "groupByFields": ["resource.label.node_name"]
                   }
                 }
-              },
-              "tableTemplate": "Total Capacity"
+              }
             }
-          ]
+          ],
+          "metricVisualization": "NUMBER"
         }
       },
       {
