@@ -16,43 +16,6 @@ resource "google_logging_metric" "oom_events" {
 }
 
 # INFRASTRUCTURE DASHBOARD
-You are absolutely right. The increase[1h] function only shows you "What just happened?" (the delta). If a pod restarted 50 times yesterday but is stable today, increase[1h] would show 0.
-
-You want the Lifetime Count: "How many times has this specific pod restarted since it was created?"
-
-The Fix: Switch to "Raw" Counts
-We will remove the increase() function and just look at the container_restart_count metric directly.
-
-Old Query: increase(container_restart_count[1h]) -> Result: 0 (If it crashed yesterday).
-
-New Query: container_restart_count -> Result: 50 (Total crashes ever).
-
-Here is the updated Dashboard 1 code. I have updated the "Restarts" widget to show the Total Lifetime Restarts for every pod currently running.
-
-Updated: modules/baseline-monitoring/01_infrastructure.tf
-Terraform
-# ------------------------------------------------------------------------------
-# 1. LOG-BASED METRICS (Kept for safety)
-# ------------------------------------------------------------------------------
-resource "google_logging_metric" "oom_events" {
-  for_each = toset(var.monitored_project_ids)
-
-  name    = "k8s_oom_events"
-  project = each.value
-  
-  description = "Count of OOMKilled events from GKE containers"
-  filter      = "resource.type=\"k8s_container\" AND textPayload:\"OOMKilled\""
-  
-  metric_descriptor {
-    metric_kind = "DELTA"
-    value_type  = "INT64"
-    unit        = "1"
-  }
-}
-
-# ------------------------------------------------------------------------------
-# 2. INFRASTRUCTURE DASHBOARD (PromQL - Lifetime Counts)
-# ------------------------------------------------------------------------------
 resource "google_monitoring_dashboard" "infrastructure_dashboard" {
   project      = var.infra_ops_project_id
   
