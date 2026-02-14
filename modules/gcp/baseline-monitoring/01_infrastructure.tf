@@ -34,27 +34,72 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
     "columns": "2",
     "widgets": [
       {
-        "title": "Node CPU Utilization",
+        "title": "Total Container Restarts",
+        "scorecard": {
+          "timeSeriesQuery": {
+            "timeSeriesFilter": {
+              "filter": "metric.type=\"kubernetes.io/container/restart_count\" resource.type=\"k8s_container\"",
+              "aggregation": {
+                "perSeriesAligner": "ALIGN_DELTA",
+                "crossSeriesReducer": "REDUCE_SUM",
+                "alignmentPeriod": "3600s"
+              }
+            },
+            "unitOverride": "Restarts"
+          },
+          "sparkChartType": "SPARK_LINE"
+        }
+      },
+      {
+        "title": "Total OOM Crashes",
+        "scorecard": {
+          "timeSeriesQuery": {
+            "timeSeriesFilter": {
+              "filter": "metric.type=\"logging.googleapis.com/user/k8s_oom_events\" resource.type=\"k8s_container\"",
+              "aggregation": {
+                "perSeriesAligner": "ALIGN_DELTA",
+                "crossSeriesReducer": "REDUCE_SUM",
+                "alignmentPeriod": "3600s"
+              }
+            },
+            "unitOverride": "Crashes"
+          },
+          "sparkChartType": "SPARK_BAR"
+        }
+      },
+      {
+        "title": "Top Nodes by CPU Utilization",
         "xyChart": {
           "dataSets": [{
             "timeSeriesQuery": {
               "timeSeriesFilter": {
                 "filter": "metric.type=\"kubernetes.io/node/cpu/allocatable_utilization\" resource.type=\"k8s_node\"",
-                "aggregation": { "perSeriesAligner": "ALIGN_MEAN", "crossSeriesReducer": "REDUCE_MEAN", "groupByFields": ["resource.label.node_name"] }
+                "aggregation": {
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "crossSeriesReducer": "REDUCE_MEAN",
+                  "groupByFields": ["resource.label.node_name"]
+                }
               }
             },
             "plotType": "LINE"
-          }]
+          }],
+          "chartOptions": {
+            "mode": "COLOR"
+          }
         }
       },
       {
-        "title": "Node Memory Utilization",
+        "title": "Top Nodes by Memory Utilization",
         "xyChart": {
           "dataSets": [{
             "timeSeriesQuery": {
               "timeSeriesFilter": {
                 "filter": "metric.type=\"kubernetes.io/node/memory/allocatable_utilization\" resource.type=\"k8s_node\"",
-                "aggregation": { "perSeriesAligner": "ALIGN_MEAN", "crossSeriesReducer": "REDUCE_MEAN", "groupByFields": ["resource.label.node_name"] }
+                "aggregation": {
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "crossSeriesReducer": "REDUCE_MEAN",
+                  "groupByFields": ["resource.label.node_name"]
+                }
               }
             },
             "plotType": "LINE"
@@ -62,77 +107,43 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
         }
       },
       {
-        "title": "Disk Utilization (%)",
+        "title": "Top Fullest Disks (>80%)",
         "xyChart": {
           "dataSets": [{
             "timeSeriesQuery": {
               "timeSeriesFilter": {
                 "filter": "metric.type=\"kubernetes.io/node/ephemeral_storage/used_bytes\" resource.type=\"k8s_node\"",
-                 "aggregation": { "perSeriesAligner": "ALIGN_MEAN", "crossSeriesReducer": "REDUCE_MEAN", "groupByFields": ["resource.label.node_name"] }
+                "aggregation": {
+                  "perSeriesAligner": "ALIGN_MEAN",
+                  "crossSeriesReducer": "REDUCE_MEAN",
+                  "groupByFields": ["resource.label.node_name"]
+                }
               }
             },
-             "plotType": "LINE"
+            "plotType": "STACKED_BAR"
           }]
         }
       },
       {
-        "title": "Disk Saturation (Throttled IOPS)",
-        "xyChart": {
-          "dataSets": [{
-            "timeSeriesQuery": {
-              "timeSeriesFilter": {
-                "filter": "metric.type=\"compute.googleapis.com/instance/disk/throttled_read_ops_count\" resource.type=\"gce_instance\"",
-                "aggregation": { "perSeriesAligner": "ALIGN_RATE", "crossSeriesReducer": "REDUCE_MEAN", "groupByFields": ["resource.label.instance_name"] }
-              }
-            },
-            "plotType": "LINE"
-          }]
-        }
-      },
-      {
-        "title": "Container Restart Rate (By Pod)",
+        "title": "Container Restarts (Count by Pod)",
         "xyChart": {
           "dataSets": [{
             "timeSeriesQuery": {
               "timeSeriesFilter": {
                 "filter": "metric.type=\"kubernetes.io/container/restart_count\" resource.type=\"k8s_container\"",
-                "aggregation": { 
-                  "perSeriesAligner": "ALIGN_RATE", 
-                  "crossSeriesReducer": "REDUCE_SUM", 
-                  "groupByFields": [
-                    "resource.label.cluster_name",
-                    "resource.label.namespace_name", 
-                    "resource.label.pod_name",
-                    "resource.label.container_name"
-                  ] 
-                }
-              }
-            },
-            "plotType": "STACKED_BAR"
-          }]
-        }
-      },
-      {
-        "title": "Specific OOM Events (By Pod)",
-        "xyChart": {
-          "dataSets": [{
-            "timeSeriesQuery": {
-              "timeSeriesFilter": {
-                "filter": "metric.type=\"logging.googleapis.com/user/k8s_oom_events\" resource.type=\"k8s_container\"",
-                "aggregation": { 
-                  "perSeriesAligner": "ALIGN_RATE",
+                "aggregation": {
+                  "perSeriesAligner": "ALIGN_DELTA", 
                   "crossSeriesReducer": "REDUCE_SUM",
-                  "groupByFields": [
-                    "resource.label.cluster_name",
-                    "resource.label.namespace_name", 
-                    "resource.label.pod_name",
-                    "resource.label.container_name"
-                  ]
+                  "groupByFields": ["resource.label.pod_name", "resource.label.namespace_name"]
                 }
               }
             },
             "plotType": "STACKED_BAR"
-          }]
+          }],
+          "yAxis": {
+            "label": "Count",
+            "scale": "LINEAR"
+          }
         }
       }
     ]
