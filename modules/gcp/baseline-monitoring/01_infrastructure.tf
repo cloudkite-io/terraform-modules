@@ -129,7 +129,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
                   "filter": "metric.type=\"kubernetes.io/node/ephemeral_storage/used_bytes\" resource.type=\"k8s_node\"",
                   "aggregation": {
                     "perSeriesAligner": "ALIGN_NEXT_OLDER",
-                    "crossSeriesReducer": "REDUCE_LAST",
+                    "crossSeriesReducer": "REDUCE_SUM",
                     "groupByFields": ["resource.label.node_name"]
                   }
                 }
@@ -141,7 +141,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
                   "filter": "metric.type=\"kubernetes.io/node/ephemeral_storage/allocatable_bytes\" resource.type=\"k8s_node\"",
                   "aggregation": {
                     "perSeriesAligner": "ALIGN_NEXT_OLDER",
-                    "crossSeriesReducer": "REDUCE_LAST",
+                    "crossSeriesReducer": "REDUCE_SUM",
                     "groupByFields": ["resource.label.node_name"]
                   }
                 }
