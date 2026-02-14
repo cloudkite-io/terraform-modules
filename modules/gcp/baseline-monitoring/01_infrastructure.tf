@@ -41,14 +41,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
         "title": "Unhealthy Nodes (Not Ready)",
         "scorecard": {
           "timeSeriesQuery": {
-            "timeSeriesFilter": {
-              "filter": "metric.type=\"kubernetes.io/node/status_condition\" resource.type=\"k8s_node\" metric.label.condition=\"Ready\" value.condition_state=\"false\"",
-              "aggregation": {
-                "perSeriesAligner": "ALIGN_NEXT_OLDER",
-                "crossSeriesReducer": "REDUCE_COUNT",
-                "alignmentPeriod": "60s"
-              }
-            },
+            "timeSeriesQueryLanguage": "fetch k8s_node | metric 'kubernetes.io/node/status_condition' | filter (metric.condition == 'Ready') | filter value == false | group_by [], count()",
             "unitOverride": "Nodes"
           }
         }
@@ -57,14 +50,7 @@ resource "google_monitoring_dashboard" "infrastructure_dashboard" {
         "title": "Total Healthy Nodes",
         "scorecard": {
           "timeSeriesQuery": {
-            "timeSeriesFilter": {
-              "filter": "metric.type=\"kubernetes.io/node/status_condition\" resource.type=\"k8s_node\" metric.label.condition=\"Ready\" value.condition_state=\"true\"",
-              "aggregation": {
-                "perSeriesAligner": "ALIGN_NEXT_OLDER",
-                "crossSeriesReducer": "REDUCE_COUNT",
-                "alignmentPeriod": "60s"
-              }
-            },
+            "timeSeriesQueryLanguage": "fetch k8s_node | metric 'kubernetes.io/node/status_condition' | filter (metric.condition == 'Ready') | filter value == true | group_by [], count()",
             "unitOverride": "Nodes"
           }
         }
