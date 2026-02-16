@@ -16,10 +16,10 @@ resource "google_logging_metric" "oom_events" {
 }
 
 # INFRASTRUCTURE DASHBOARD
-resource "google_monitoring_dashboard" "infrastructure_dashboard" {
-  project      = var.infra_ops_project_id
+# resource "google_monitoring_dashboard" "infrastructure_dashboard" {
+#   project      = var.infra_ops_project_id
   
-  dashboard_json = <<EOF
-{}
-EOF
-}
+#   dashboard_json = <<EOF
+# {}
+# EOF
+# }
