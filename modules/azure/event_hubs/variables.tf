@@ -14,7 +14,6 @@ variable "event_hubs_namespaces" {
     override_name  = optional(string, null)
     sku            = string
     capacity       = number
-    zone_redundant = bool
     auto_inflate = object({
       enabled                  = bool
       maximum_throughput_units = number
