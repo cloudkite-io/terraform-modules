@@ -5,7 +5,7 @@ resource "google_storage_bucket" "backups" {
   location                    = var.backups_bucket_location
   uniform_bucket_level_access = var.backups_bucket_uniform_level_access
   soft_delete_policy {
-    retention_duration_seconds  = try(var.soft_delete_policy, 0)
+    retention_duration_seconds = try(var.soft_delete_policy, 0)
   }
 }
 
