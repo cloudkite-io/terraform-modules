@@ -48,7 +48,6 @@ resource "azurerm_eventhub_namespace" "events" {
   capacity                      = each.value.capacity
   auto_inflate_enabled          = each.value.sku == "Standard" ? each.value.auto_inflate.enabled : false
   maximum_throughput_units      = each.value.auto_inflate.enabled && each.value.sku == "Standard" ? each.value.auto_inflate.maximum_throughput_units : null
-  zone_redundant                = each.value.zone_redundant
   public_network_access_enabled = length(each.value.ip_rules) > 0 || length(lookup(local.subnet_ids_no_private_endpoint, each.key, [])) > 0 ? true : each.value.public_network_access_enabled
 
   network_rulesets {
