@@ -11,10 +11,9 @@ variable "location" {
 variable "event_hubs_namespaces" {
   description = "Azure event hub configurations"
   type = map(object({
-    override_name  = optional(string, null)
-    sku            = string
-    capacity       = number
-    zone_redundant = bool
+    override_name = optional(string, null)
+    sku           = string
+    capacity      = number
     auto_inflate = object({
       enabled                  = bool
       maximum_throughput_units = number
