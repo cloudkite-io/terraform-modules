@@ -66,14 +66,14 @@ module "event_hubs" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.3.0 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >=3.53.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >=3.53.0 |
 
 ## Modules
@@ -83,7 +83,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_eventhub.event_hub](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub) | resource |
 | [azurerm_eventhub_authorization_rule.authorization_rules](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_authorization_rule) | resource |
 | [azurerm_eventhub_namespace.events](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_namespace) | resource |
@@ -104,7 +104,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_event_hubs_namespaces"></a> [event\_hubs\_namespaces](#input\_event\_hubs\_namespaces) | Azure event hub configurations | <pre>map(object({<br/>    override_name = optional(string, null)<br/>    sku           = string<br/>    capacity      = number<br/>    auto_inflate = object({<br/>      enabled                  = bool<br/>      maximum_throughput_units = number<br/>    })<br/>    public_network_access_enabled  = optional(bool, false)<br/>    trusted_service_access_enabled = optional(bool, false)<br/>    ip_rules                       = optional(list(string), [])<br/>    public_uri_key_vaults = optional(map(object({<br/>      resource_group_name = string<br/>    })), {})<br/>    subnets = optional(map(object({<br/>      vnet_name               = string<br/>      resource_group_name     = string<br/>      location                = string<br/>      key_vault_name          = optional(string, null)<br/>      create_private_endpoint = optional(bool, false)<br/>    })), {})<br/>    extra_subnet_ids_no_private_endpoint = optional(list(string), [])<br/>    event_hubs = map(object({<br/>      message_retention = number<br/>      partition_count   = number<br/>      authorization_rules = optional(map(object({<br/>        listen = optional(bool, false)<br/>        send   = optional(bool, false)<br/>        manage = optional(bool, false)<br/>        })),<br/>      {})<br/>    }))<br/>  }))</pre> | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | Azure location | `string` | n/a | yes |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Azure resource group name | `string` | n/a | yes |
