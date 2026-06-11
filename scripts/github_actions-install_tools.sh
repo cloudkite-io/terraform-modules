@@ -30,6 +30,7 @@ function get_arch() {
     armv6*) echo -n "armv6";;
     armv7*) echo -n "armv7";;
     aarch64) echo -n "arm64";;
+    arm64) echo -n "arm64";;
     x86) echo -n "386";;
     x86_64) echo -n "amd64";;
     i686) echo -n "386";;
