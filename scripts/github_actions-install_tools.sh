@@ -49,7 +49,7 @@ retry_command "${retry}" 'bash' '-c' 'brew install terraform terraform-docs'
 KERNEL="$(uname | tr '[:upper:]' '[:lower:]')"
 ARCH="$(get_arch)"
 
-TFLINT_VERSION='0.45.0'
+TFLINT_VERSION='0.63.1'
 echo "Install tflint ${TFLINT_VERSION}"
 TFLINT_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_${KERNEL}_${ARCH}.zip"
 curl -sL "${TFLINT_URL}" -o /tmp/tflint.zip
