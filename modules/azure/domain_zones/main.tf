@@ -22,7 +22,7 @@ resource "azurerm_dns_cname_record" "dns_cname_records" {
   zone_name           = join(slice(split(".", each.key), 1, length(split(".", each.key))), ".")
   resource_group_name = var.resource_group_name
   ttl                 = 300
-  record              = "${each.key}.${each.value.record}"
+  record              = each.value.record
   depends_on = [
     azurerm_dns_zone.domain_zone
   ]
