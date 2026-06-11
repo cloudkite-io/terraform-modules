@@ -6,8 +6,8 @@ resource "azurerm_dns_zone" "domain_zone" {
 
 resource "azurerm_dns_a_record" "dns_a_records" {
   for_each            = var.dns_a_records
-  name                = each.value.name
-  zone_name           = each.key
+  name                = split(".", each.key)[0]
+  zone_name           = join(slice(split(".", each.key), 1, length(split(".", each.key))), ".")
   resource_group_name = var.resource_group_name
   ttl                 = 300
   records             = each.value.records
@@ -18,8 +18,8 @@ resource "azurerm_dns_a_record" "dns_a_records" {
 
 resource "azurerm_dns_cname_record" "dns_cname_records" {
   for_each            = var.dns_cname_records
-  name                = each.key
-  zone_name           = each.value.zone
+  name                = split(".", each.key)[0]
+  zone_name           = join(slice(split(".", each.key), 1, length(split(".", each.key))), ".")
   resource_group_name = var.resource_group_name
   ttl                 = 300
   record              = "${each.key}.${each.value.record}"
