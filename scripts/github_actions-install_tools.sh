@@ -37,24 +37,21 @@ function get_arch() {
   esac
 }
 
-function get_os() {
-  local kernel_name
-  kernel_name="$(uname)"
-  case "${kernel_name}" in
-    Linux)
-      echo -n 'linux'
-      ;;
-    Darwin)
-      echo -n 'macos'
-      ;;
-    *)
-      echo "Sorry, ${kernel_name} is not supported." >&2
-      exit 1
-      ;;
-  esac
-}
 
 retry=5
 
 echo "Install from brew"
-retry_command "${retry}" 'bash' '-c' 'brew install terraform terraform-docs tflint'
+## TODO: install all tools via binary releases instead of brew to avoid brew's flakiness on github actions runners
+retry_command "${retry}" 'bash' '-c' 'brew install terraform terraform-docs"
+
+
+KERNEL="$(uname | tr '[:upper:]' '[:lower:]')"
+ARCH="$(get_arch)"
+
+TFLINT_VERSION='0.45.0'
+echo "Install tflint ${TFLINT_VERSION}"
+TFLINT_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_${KERNEL}_${ARCH}.zip"
+curl -sL "${TFLINT_URL}" -o /tmp/tflint.zip
+unzip -d /usr/local/bin/ /tmp/tflint.zip
+chmod +x /usr/local/bin/tflint
+rm -f /tmp/tflint.zip
