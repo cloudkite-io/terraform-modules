@@ -11,7 +11,7 @@ variable "dns_domain_zones" {
 variable "dns_a_records" {
   description = "Map with dns A records to create and their configurations"
   type = map(object({
-    zone    = string
+    name    = string
     records = list(string)
   }))
 }
