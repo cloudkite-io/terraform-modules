@@ -42,7 +42,7 @@ retry=5
 
 echo "Install from brew"
 ## TODO: install all tools via binary releases instead of brew to avoid brew's flakiness on github actions runners
-retry_command "${retry}" 'bash' '-c' 'brew install terraform terraform-docs"
+retry_command "${retry}" 'bash' '-c' 'brew install terraform terraform-docs'"
 
 
 KERNEL="$(uname | tr '[:upper:]' '[:lower:]')"
