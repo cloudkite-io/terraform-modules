@@ -6,8 +6,8 @@ resource "azurerm_dns_zone" "domain_zone" {
 
 resource "azurerm_dns_a_record" "dns_a_records" {
   for_each            = var.dns_a_records
-  name                = each.key
-  zone_name           = each.value.zone
+  name                = each.value.name
+  zone_name           = each.key
   resource_group_name = var.resource_group_name
   ttl                 = 300
   records             = each.value.records
