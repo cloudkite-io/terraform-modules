@@ -41,11 +41,13 @@ function get_arch() {
 
 retry=5
 
-echo "Trusting terraform formula"
+echo "Trusting hashicorp tap"
 retry_command "${retry}" 'bash' '-c' 'brew trust --formula hashicorp/tap'
+echo "Trustinf terraform-docs tap"
+retry_command "${retry}" 'bash' '-c' 'brew trust --formula terraform-docs/tap'
 echo "Install from brew"
 ## TODO: install all tools via binary releases instead of brew to avoid brew's flakiness on github actions runners
-retry_command "${retry}" 'bash' '-c' 'brew install terraform terraform-docs'
+retry_command "${retry}" 'bash' '-c' 'brew install hashicorp/tap/terraform terraform-docs/tap/terraform-docs'
 
 
 KERNEL="$(uname | tr '[:upper:]' '[:lower:]')"
