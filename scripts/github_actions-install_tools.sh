@@ -38,18 +38,28 @@ function get_arch() {
   esac
 }
 
-
-retry=5
-
-echo "Trustinf terraform-docs tap"
-retry_command "${retry}" 'bash' '-c' 'brew trust --formula terraform-docs/tap'
-echo "Install from brew"
-## TODO: install all tools via binary releases instead of brew to avoid brew's flakiness on github actions runners
-retry_command "${retry}" 'bash' '-c' 'brew install terraform-docs/tap/terraform-docs'
-
+function get_latest_github_tag() {
+  local owner="${1}"
+  local repo="${2}"
+  local remove_v="${3:-false}"
+  local latest_tag
+  latest_tag="$(curl -s "https://api.github.com/repos/${owner}/${repo}/releases/latest" | jq -r .tag_name)"
+  if [[ "${remove_v}" == 'true' ]]; then
+    echo -n "${latest_tag}" | tr -d 'v'
+    return 0
+  fi
+  echo -n "${latest_tag}"
+}
 
 KERNEL="$(uname | tr '[:upper:]' '[:lower:]')"
 ARCH="$(get_arch)"
+
+echo "Install terraform-docs"
+mkdir tf-docs-download
+TF_DOCS_VERSION="$(get_latest_github_tag 'terraform-docs' 'terraform-docs' 'true')"
+TFDOCS_URL="https://github.com/terraform-docs/terraform-docs/releases/download/v${TF_DOCS_VERSION}/terraform-docs-v${TF_DOCS_VERSION}-${KERNEL}-${ARCH}.tar.gz"
+wget -qO- "${TFDOCS_URL}" | tar -C tf-docs-download -xzf -
+cp tf-docs-download/terraform-docs /usr/local/bin
 
 TFLINT_VERSION='0.63.1'
 echo "Install tflint ${TFLINT_VERSION}"
