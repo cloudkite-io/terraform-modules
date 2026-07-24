@@ -89,7 +89,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "private_dns_zone_virtu
   private_dns_zone_name = each.value.zone_name
   virtual_network_id    = each.value.virtual_network_id
   registration_enabled  = each.value.registration_enabled
-  resolution_policy     = each.value.resolution_policy
   depends_on = [
     azurerm_private_dns_zone.private_domain_zone
   ]

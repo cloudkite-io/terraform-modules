@@ -69,7 +69,7 @@ No modules.
 | <a name="input_private_dns_aaaa_records"></a> [private\_dns\_aaaa\_records](#input\_private\_dns\_aaaa\_records) | Map with private dns AAAA records to create and their configurations | <pre>map(object({<br/>    records = list(string)<br/>  }))</pre> | `{}` | no |
 | <a name="input_private_dns_cname_records"></a> [private\_dns\_cname\_records](#input\_private\_dns\_cname\_records) | Map with private dns CNAME records to create and their configurations | <pre>map(object({<br/>    record = string<br/>  }))</pre> | `{}` | no |
 | <a name="input_private_dns_domain_zones"></a> [private\_dns\_domain\_zones](#input\_private\_dns\_domain\_zones) | List of private top level domains to create | `list(string)` | `[]` | no |
-| <a name="input_private_dns_zone_virtual_network_links"></a> [private\_dns\_zone\_virtual\_network\_links](#input\_private\_dns\_zone\_virtual\_network\_links) | Map with private DNS zone virtual network links to create | <pre>map(object({<br/>    zone_name            = string<br/>    virtual_network_id   = string<br/>    registration_enabled = optional(bool, false)<br/>    resolution_policy    = optional(string, "Default")<br/>  }))</pre> | `{}` | no |
+| <a name="input_private_dns_zone_virtual_network_links"></a> [private\_dns\_zone\_virtual\_network\_links](#input\_private\_dns\_zone\_virtual\_network\_links) | Map with private DNS zone virtual network links to create | <pre>map(object({<br/>    zone_name            = string<br/>    virtual_network_id   = string<br/>    registration_enabled = optional(bool, false)<br/>  }))</pre> | `{}` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | Azure resource group name | `string` | n/a | yes |
 
 ## Outputs

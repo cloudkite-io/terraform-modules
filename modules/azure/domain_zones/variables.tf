@@ -69,14 +69,6 @@ variable "private_dns_zone_virtual_network_links" {
     zone_name            = string
     virtual_network_id   = string
     registration_enabled = optional(bool, false)
-    resolution_policy    = optional(string, "Default")
   }))
   default = {}
-
-  validation {
-    condition = alltrue([
-      for link in values(var.private_dns_zone_virtual_network_links) : contains(["Default", "NxDomainRedirect"], link.resolution_policy)
-    ])
-    error_message = "resolution_policy must be either 'Default' or 'NxDomainRedirect'."
-  }
 }
