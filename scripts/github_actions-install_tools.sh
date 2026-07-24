@@ -58,7 +58,7 @@ echo "Install terraform-docs"
 mkdir tf-docs-download
 TF_DOCS_VERSION="$(get_latest_github_tag 'terraform-docs' 'terraform-docs' 'true')"
 TFDOCS_URL="https://github.com/terraform-docs/terraform-docs/releases/download/v${TF_DOCS_VERSION}/terraform-docs-v${TF_DOCS_VERSION}-${KERNEL}-${ARCH}.tar.gz"
-wget -O- "${TFDOCS_URL}" | tar -C tf-docs-download -xzf -
+wget -qO- "${TFDOCS_URL}" | tar -C tf-docs-download -xzf -
 cp tf-docs-download/terraform-docs /usr/local/bin
 
 TFLINT_VERSION='0.63.1'
