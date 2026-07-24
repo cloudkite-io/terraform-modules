@@ -33,6 +33,11 @@ output "private_dns_cname_records" {
   value       = azurerm_private_dns_cname_record.private_dns_cname_records
 }
 
+output "private_dns_zone_virtual_network_links" {
+  description = "The properties of private DNS zone virtual network links created by this module"
+  value       = azurerm_private_dns_zone_virtual_network_link.private_dns_zone_virtual_network_links
+}
+
 output "dns_aaaa_records" {
   description = "The properties of DNS AAAA records created by this module"
   value       = azurerm_dns_aaaa_record.dns_aaaa_records
