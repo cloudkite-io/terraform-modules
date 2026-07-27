@@ -112,3 +112,39 @@ resource "azurerm_virtual_network_gateway_connection" "local" {
     }
   }
 }
+
+resource "azurerm_virtual_network_gateway_nat_rule" "ingress-rules" {
+  for_each                   = var.external_mappings
+  name                       = "${each.key}-ingress-rule"
+  resource_group_name        = var.resource_group_name
+  virtual_network_gateway_id = azurerm_virtual_network_gateway.gw.id
+
+  type = "Static"
+  mode = "IngressSnat"
+
+  internal_mapping {
+    address_space = each.value.internal_address_space
+  }
+
+  external_mapping {
+    address_space = each.value.external_address_space
+  }
+}
+
+resource "azurerm_virtual_network_gateway_nat_rule" "egress-rules" {
+  for_each                   = var.external_mappings
+  name                       = "${each.key}-egress-rule"
+  resource_group_name        = var.resource_group_name
+  virtual_network_gateway_id = azurerm_virtual_network_gateway.gw.id
+
+  type = "Static"
+  mode = "EgressSnat"
+
+  internal_mapping {
+    address_space = each.value.external_address_space
+  }
+
+  external_mapping {
+    address_space = each.value.internal_address_space
+  }
+}

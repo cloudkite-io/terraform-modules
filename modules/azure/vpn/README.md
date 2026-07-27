@@ -86,6 +86,8 @@ No modules.
 | [azurerm_public_ip.gw_aa](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | resource |
 | [azurerm_virtual_network_gateway.gw](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway) | resource |
 | [azurerm_virtual_network_gateway_connection.local](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway_connection) | resource |
+| [azurerm_virtual_network_gateway_nat_rule.egress-rules](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway_nat_rule) | resource |
+| [azurerm_virtual_network_gateway_nat_rule.ingress-rules](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network_gateway_nat_rule) | resource |
 
 ## Inputs
 
@@ -94,6 +96,7 @@ No modules.
 | <a name="input_active_active"></a> [active\_active](#input\_active\_active) | If true, an active-active Virtual Network Gateway will be created. An active-active gateway requires a HighPerformance or an UltraPerformance sku. If false, an active-standby gateway will be created. Defaults to false. | `bool` | `false` | no |
 | <a name="input_client_configuration"></a> [client\_configuration](#input\_client\_configuration) | If set it will activate point-to-site configuration. | <pre>object({<br/>    address_space = list(string)<br/>    protocols     = list(string)<br/>    certificate   = string<br/>    auth_types    = list(string)<br/>    revoked_certificates = optional(map(object({<br/>      name       = string<br/>      thumbprint = string<br/>    })), {})<br/>  })</pre> | `null` | no |
 | <a name="input_enable_bgp"></a> [enable\_bgp](#input\_enable\_bgp) | If true, BGP (Border Gateway Protocol) will be enabled for this Virtual Network Gateway. Defaults to false. | `bool` | `false` | no |
+| <a name="input_external_mappings"></a> [external\_mappings](#input\_external\_mappings) | List of external mappings to connect to gateway. | <pre>map(<br/>    object({<br/>      internal_address_space = string<br/>      external_address_space = string<br/>    })<br/>  )</pre> | `{}` | no |
 | <a name="input_local_networks"></a> [local\_networks](#input\_local\_networks) | List of local virtual network connections to connect to gateway. | <pre>list(<br/>    object({<br/>      name            = string<br/>      gateway_address = string<br/>      address_space   = list(string)<br/>      shared_key      = string<br/>      ipsec_policy    = any<br/>    })<br/>  )</pre> | `[]` | no |
 | <a name="input_location"></a> [location](#input\_location) | The Azure Region in which to create resource. | `string` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Name of virtual gateway. | `string` | n/a | yes |

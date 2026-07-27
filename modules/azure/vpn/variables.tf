@@ -63,3 +63,14 @@ variable "local_networks" {
   )
   default = []
 }
+
+variable "external_mappings" {
+  description = "List of external mappings to connect to gateway."
+  type = map(
+    object({
+      internal_address_space = string
+      external_address_space = string
+    })
+  )
+  default = {}
+}
