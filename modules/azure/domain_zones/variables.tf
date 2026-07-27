@@ -62,3 +62,13 @@ variable "private_dns_cname_records" {
   }))
   default = {}
 }
+
+variable "private_dns_zone_virtual_network_links" {
+  description = "Map with private DNS zone virtual network links to create"
+  type = map(object({
+    zone_name            = string
+    virtual_network_id   = string
+    registration_enabled = optional(bool, false)
+  }))
+  default = {}
+}
