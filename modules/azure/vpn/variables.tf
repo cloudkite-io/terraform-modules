@@ -54,11 +54,14 @@ variable "local_networks" {
   description = "List of local virtual network connections to connect to gateway."
   type = list(
     object({
-      name            = string
-      gateway_address = string
-      address_space   = list(string)
-      shared_key      = string
-      ipsec_policy    = any
+      name                  = string
+      gateway_address       = string
+      address_space         = list(string)
+      shared_key            = string
+      ipsec_policy          = any
+      external_mappings_ref = optional(string, "")
+      ingress_nat_rule_ids  = optional(list(string), [])
+      egress_nat_rule_ids   = optional(list(string), [])
     })
   )
   default = []
