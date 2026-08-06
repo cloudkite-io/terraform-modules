@@ -95,6 +95,8 @@ resource "azurerm_virtual_network_gateway_connection" "local" {
   type                       = "IPsec"
   virtual_network_gateway_id = azurerm_virtual_network_gateway.gw.id
   local_network_gateway_id   = azurerm_local_network_gateway.local[count.index].id
+  ingress_nat_rule_ids       = var.local_networks[count.index].external_mappings_ref != "" ? [azurerm_virtual_network_gateway_nat_rule.ingress-rules[var.local_networks[count.index].external_mappings_ref].id] : []
+  egress_nat_rule_ids        = var.local_networks[count.index].external_mappings_ref != "" ? [azurerm_virtual_network_gateway_nat_rule.egress-rules[var.local_networks[count.index].external_mappings_ref].id] : []
 
   shared_key = var.local_networks[count.index].shared_key
 
