@@ -60,8 +60,6 @@ variable "local_networks" {
       shared_key            = string
       ipsec_policy          = any
       external_mappings_ref = optional(string, "")
-      ingress_nat_rule_ids  = optional(list(string), [])
-      egress_nat_rule_ids   = optional(list(string), [])
     })
   )
   default = []
