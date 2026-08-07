@@ -4,11 +4,44 @@
 # GitHub / Databricks service-principal definitions into one reusable building block.
 
 resource "azuread_application" "this" {
-  display_name            = var.display_name
-  description             = var.description
-  sign_in_audience        = var.sign_in_audience
-  owners                  = var.owners
-  prevent_duplicate_names = true
+  display_name                   = var.display_name
+  description                    = var.description
+  sign_in_audience               = var.sign_in_audience
+  owners                         = var.owners
+  prevent_duplicate_names        = true
+  identifier_uris                = var.identifier_uris
+  fallback_public_client_enabled = var.fallback_public_client_enabled
+  group_membership_claims        = var.group_membership_claims
+
+  dynamic "optional_claims" {
+    for_each = var.optional_claims != null ? [1] : []
+    content {
+      dynamic "access_token" {
+        for_each = coalesce(var.optional_claims.access_token, [])
+        content {
+          name                  = access_token.value.name
+          essential             = access_token.value.essential
+          additional_properties = access_token.value.additional_properties
+        }
+      }
+      dynamic "id_token" {
+        for_each = coalesce(var.optional_claims.id_token, [])
+        content {
+          name                  = id_token.value.name
+          essential             = id_token.value.essential
+          additional_properties = id_token.value.additional_properties
+        }
+      }
+      dynamic "saml2_token" {
+        for_each = coalesce(var.optional_claims.saml2_token, [])
+        content {
+          name                  = saml2_token.value.name
+          essential             = saml2_token.value.essential
+          additional_properties = saml2_token.value.additional_properties
+        }
+      }
+    }
+  }
 
   dynamic "web" {
     for_each = var.web != null ? [1] : []
@@ -41,9 +74,20 @@ resource "azuread_application" "this" {
   }
 
   dynamic "api" {
-    for_each = var.requested_access_token_version != null ? [1] : []
+    for_each = (var.requested_access_token_version != null || length(var.oauth2_permission_scopes) > 0) ? [1] : []
     content {
       requested_access_token_version = var.requested_access_token_version
+      dynamic "oauth2_permission_scope" {
+        for_each = var.oauth2_permission_scopes
+        content {
+          admin_consent_description  = oauth2_permission_scope.value.admin_consent_description
+          admin_consent_display_name = oauth2_permission_scope.value.admin_consent_display_name
+          enabled                    = oauth2_permission_scope.value.enabled
+          id                         = oauth2_permission_scope.value.id
+          type                       = oauth2_permission_scope.value.type
+          value                      = oauth2_permission_scope.value.value
+        }
+      }
     }
   }
 }
