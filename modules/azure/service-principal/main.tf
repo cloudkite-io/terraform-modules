@@ -10,6 +10,22 @@ resource "azuread_application" "this" {
   owners                  = var.owners
   prevent_duplicate_names = true
 
+  # Preserve legacy app settings that this module does not currently model.
+  # This keeps migrated identities stable and avoids destructive drift.
+  lifecycle {
+    ignore_changes = [
+      description,
+      identifier_uris,
+      group_membership_claims,
+      optional_claims,
+      public_client,
+      fallback_public_client_enabled,
+      api,
+      web,
+      required_resource_access,
+    ]
+  }
+
   dynamic "web" {
     for_each = var.web != null ? [1] : []
     content {
@@ -99,6 +115,10 @@ resource "azuread_application_federated_identity_credential" "this" {
   audiences      = each.value.audiences
   issuer         = each.value.issuer
   subject        = each.value.subject
+
+  lifecycle {
+    ignore_changes = [description]
+  }
 }
 
 # Flexible federated identity credentials — expression-based wildcard matching.
