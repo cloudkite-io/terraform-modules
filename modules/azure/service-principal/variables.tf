@@ -15,6 +15,18 @@ variable "sign_in_audience" {
   default     = "AzureADMyOrg"
 }
 
+variable "app_role_assignment_required" {
+  description = "Whether users/groups need explicit app role assignment to sign in to this enterprise app."
+  type        = bool
+  default     = false
+}
+
+variable "requested_access_token_version" {
+  description = "Optional access token version for the api block. Required to be 2 for personal Microsoft account audiences."
+  type        = number
+  default     = null
+}
+
 variable "owners" {
   description = "List of already-resolved object IDs that own the application and service principal."
   type        = list(string)
@@ -58,6 +70,7 @@ variable "kubernetes_federations" {
     cluster_oidc_url = string
     namespace        = string
     serviceaccount   = string
+    display_name     = optional(string, null)
   }))
   default = {}
 }

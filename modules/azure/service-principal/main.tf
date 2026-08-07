@@ -39,12 +39,20 @@ resource "azuread_application" "this" {
       }
     }
   }
+
+  dynamic "api" {
+    for_each = var.requested_access_token_version != null ? [1] : []
+    content {
+      requested_access_token_version = var.requested_access_token_version
+    }
+  }
 }
 
 resource "azuread_service_principal" "this" {
-  client_id    = azuread_application.this.client_id
-  owners       = var.owners
-  use_existing = true
+  client_id                    = azuread_application.this.client_id
+  owners                       = var.owners
+  use_existing                 = true
+  app_role_assignment_required = var.app_role_assignment_required
 }
 
 locals {
@@ -67,9 +75,10 @@ locals {
     },
     {
       for key, value in var.kubernetes_federations : "k8s-${key}" => {
-        issuer    = value.cluster_oidc_url
-        subject   = "system:serviceaccount:${value.namespace}:${value.serviceaccount}"
-        audiences = ["api://AzureADTokenExchange"]
+        display_name = coalesce(value.display_name, "k8s-${key}")
+        issuer       = value.cluster_oidc_url
+        subject      = "system:serviceaccount:${value.namespace}:${value.serviceaccount}"
+        audiences    = ["api://AzureADTokenExchange"]
       }
     },
     {
@@ -85,7 +94,7 @@ locals {
 resource "azuread_application_federated_identity_credential" "this" {
   for_each       = local.federations
   application_id = azuread_application.this.id
-  display_name   = each.key
+  display_name   = try(each.value.display_name, each.key)
   description    = var.description
   audiences      = each.value.audiences
   issuer         = each.value.issuer
