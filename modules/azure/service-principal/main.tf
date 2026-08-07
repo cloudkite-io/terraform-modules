@@ -59,6 +59,13 @@ resource "azuread_application" "this" {
     }
   }
 
+  dynamic "public_client" {
+    for_each = length(var.public_client_redirect_uris) > 0 ? [1] : []
+    content {
+      redirect_uris = var.public_client_redirect_uris
+    }
+  }
+
   dynamic "required_resource_access" {
     for_each = var.resource_app_id != "" ? [1] : []
     content {

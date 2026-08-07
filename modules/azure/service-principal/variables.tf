@@ -58,6 +58,12 @@ variable "fallback_public_client_enabled" {
   default     = false
 }
 
+variable "public_client_redirect_uris" {
+  description = "Redirect URIs for public client (native/mobile) flows."
+  type        = list(string)
+  default     = []
+}
+
 variable "optional_claims" {
   description = "Optional claims to include in access, id, and SAML2 tokens."
   type = object({
