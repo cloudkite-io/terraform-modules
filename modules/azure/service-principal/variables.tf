@@ -15,6 +15,77 @@ variable "sign_in_audience" {
   default     = "AzureADMyOrg"
 }
 
+variable "app_role_assignment_required" {
+  description = "Whether users/groups need explicit app role assignment to sign in to this enterprise app."
+  type        = bool
+  default     = false
+}
+
+variable "requested_access_token_version" {
+  description = "Optional access token version for the api block. Required to be 2 for personal Microsoft account audiences."
+  type        = number
+  default     = null
+}
+
+variable "oauth2_permission_scopes" {
+  description = "Optional OAuth2 permission scopes to expose on this application (api block)."
+  type = list(object({
+    admin_consent_description  = string
+    admin_consent_display_name = string
+    enabled                    = optional(bool, true)
+    id                         = string
+    type                       = optional(string, "Admin")
+    value                      = string
+  }))
+  default = []
+}
+
+variable "group_membership_claims" {
+  description = "Groups claim in tokens. Typical values: [\"SecurityGroup\"], [\"ApplicationGroup\"]."
+  type        = list(string)
+  default     = []
+}
+
+variable "identifier_uris" {
+  description = "User-defined URI(s) that uniquely identify the application (e.g. api://<client-id>)."
+  type        = list(string)
+  default     = []
+}
+
+variable "fallback_public_client_enabled" {
+  description = "Specifies whether the application is a public client (enables ROPC and device code flows)."
+  type        = bool
+  default     = false
+}
+
+variable "public_client_redirect_uris" {
+  description = "Redirect URIs for public client (native/mobile) flows."
+  type        = list(string)
+  default     = []
+}
+
+variable "optional_claims" {
+  description = "Optional claims to include in access, id, and SAML2 tokens."
+  type = object({
+    access_token = optional(list(object({
+      name                  = string
+      essential             = optional(bool, false)
+      additional_properties = optional(list(string), [])
+    })), [])
+    id_token = optional(list(object({
+      name                  = string
+      essential             = optional(bool, false)
+      additional_properties = optional(list(string), [])
+    })), [])
+    saml2_token = optional(list(object({
+      name                  = string
+      essential             = optional(bool, false)
+      additional_properties = optional(list(string), [])
+    })), [])
+  })
+  default = null
+}
+
 variable "owners" {
   description = "List of already-resolved object IDs that own the application and service principal."
   type        = list(string)
@@ -58,6 +129,7 @@ variable "kubernetes_federations" {
     cluster_oidc_url = string
     namespace        = string
     serviceaccount   = string
+    display_name     = optional(string, null)
   }))
   default = {}
 }
