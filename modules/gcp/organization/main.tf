@@ -1,4 +1,6 @@
 locals {
+  billing_account_project_creators = var.billing_account_id == null ? toset([]) : toset(var.project_creators)
+
   organization_iam_members = {
     for membership in flatten([
       for role, members in var.organization_iam_members : [
@@ -21,6 +23,16 @@ resource "google_project" "project" {
   name                = each.value.name
   org_id              = var.organization_id
   project_id          = each.key
+
+  depends_on = [google_billing_account_iam_member.project_creator]
+}
+
+resource "google_billing_account_iam_member" "project_creator" {
+  for_each = local.billing_account_project_creators
+
+  billing_account_id = var.billing_account_id
+  member             = each.key
+  role               = "roles/billing.user"
 }
 
 resource "google_organization_policy" "disable_project_creation" {

@@ -18,7 +18,7 @@ variable "prevent_project_creation" {
 }
 
 variable "project_creators" {
-  description = "Optional list of IAM principals such as 'group:team@example.com' or 'user:alice@example.com' granted roles/resourcemanager.projectCreator on the organization."
+  description = "Optional list of IAM principals such as 'group:team@example.com' or 'user:alice@example.com' granted roles/resourcemanager.projectCreator on the organization and, when billing_account_id is set, roles/billing.user on the billing account."
   type        = list(string)
   default     = []
 }
@@ -26,7 +26,7 @@ variable "project_creators" {
 variable "default_labels" {
   description = "Default labels applied to all created projects. Project-level labels from tfvars override these keys on conflict."
   type        = map(string)
-  default     = {
+  default = {
     provisioned-by = "terraform"
   }
 }
