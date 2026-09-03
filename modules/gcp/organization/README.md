@@ -51,6 +51,67 @@ This module can optionally manage an organization policy that prevents creation 
 | `project_creators` | `list(string)` | Optional IAM principal strings granted project creation permissions and, when `billing_account_id` is set, billing account association permissions. |
 | `default_labels` | `map(string)` | Default labels applied to all created projects; project-level labels override conflicts. |
 
+## Example `terraform.tfvars`
+
+Folder map keys are caller-defined identifiers. Use the same key in a project's
+optional `folder` attribute to place it in that folder; omit `folder` to create
+the project directly under the organization.
+
+```hcl
+organization_id    = "123456789012"
+billing_account_id = "012345-ABCDEF-678901"
+
+default_labels = {
+  environment = "shared"
+  managed-by  = "terraform"
+}
+
+folders = {
+  production = {
+    display_name = "Production"
+    iam_members = {
+      "roles/viewer" = [
+        "group:production-viewers@example.com",
+      ]
+    }
+  }
+
+  development = {
+    display_name        = "Development"
+    deletion_protection = false
+    iam_members = {
+      "roles/editor" = [
+        "group:developers@example.com",
+      ]
+    }
+  }
+}
+
+projects = {
+  example-production-app = {
+    name   = "Production application"
+    folder = "production"
+    labels = {
+      environment = "production"
+      application = "example-app"
+    }
+  }
+
+  example-development-app = {
+    name   = "Development application"
+    folder = "development"
+    labels = {
+      environment = "development"
+      application = "example-app"
+    }
+  }
+
+  example-shared-services = {
+    name = "Shared services"
+  }
+}
+```
+
 ## Outputs
 
 | Name | Description |
