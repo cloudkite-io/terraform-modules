@@ -5,6 +5,56 @@ variable "billing_account_id" {
   nullable    = true
 }
 
+variable "folder_creators" {
+  description = "Principals granted roles/resourcemanager.folderCreator on the organization."
+  type        = set(string)
+  default     = []
+}
+
+variable "folders" {
+  description = "Top-level organization folders, including additive IAM memberships, keyed by a stable identifier."
+  type = map(object({
+    display_name        = string
+    deletion_protection = optional(bool, true)
+    iam_members         = optional(map(set(string)), {})
+  }))
+  default = {}
+
+  validation {
+    condition = alltrue([
+      for folder in keys(var.folders) : can(regex("^[a-z][a-z0-9_-]*$", folder))
+    ])
+    error_message = "Folder keys must start with a lowercase letter and contain only lowercase letters, digits, hyphens, or underscores."
+  }
+
+  validation {
+    condition = alltrue([
+      for folder in values(var.folders) :
+      length(folder.display_name) >= 3 &&
+      length(folder.display_name) <= 30 &&
+      can(regex("^[A-Za-z0-9][A-Za-z0-9 _-]*[A-Za-z0-9]$", folder.display_name))
+    ])
+    error_message = "Folder display names must be 3-30 characters, start and end with a letter or digit, and contain only letters, digits, spaces, hyphens, or underscores."
+  }
+
+  validation {
+    condition = length(distinct([
+      for folder in values(var.folders) : folder.display_name
+    ])) == length(var.folders)
+    error_message = "Top-level folder display names must be unique within the organization."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for folder in values(var.folders) : [
+        for role in keys(folder.iam_members) :
+        can(regex("^(roles/[A-Za-z0-9_.]+|organizations/[0-9]+/roles/[A-Za-z0-9_.]+)$", role))
+      ]
+    ]))
+    error_message = "Folder IAM keys must be predefined roles or organization-level custom role resource names."
+  }
+}
+
 variable "organization_iam_members" {
   description = "Additive organization IAM memberships, grouped by role; this module manages only the listed role/member pairs."
   type        = map(set(string))
@@ -42,24 +92,26 @@ variable "organization_id" {
 }
 
 variable "projects" {
-  description = "Projects to create, keyed by Google Cloud project ID."
+  description = "Projects keyed by Google Cloud project ID. Set folder to place a project in a managed folder; omit it to keep the project at the organization root."
   type = map(object({
+    folder = optional(string)
     labels = optional(map(string), {})
     name   = string
   }))
-  default = {
-    foobar-dev = {
-      labels = {
-        environment = "dev"
-      }
-      name = "foobar-dev"
-    }
-  }
+  default = {}
 
   validation {
     condition = alltrue([
       for project_id in keys(var.projects) : can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", project_id))
     ])
     error_message = "Each projects key must be a valid 6-30 character project ID: start with a lowercase letter, end with a lowercase letter or digit, and contain only lowercase letters, digits, or hyphens."
+  }
+
+  validation {
+    condition = alltrue([
+      for project in values(var.projects) :
+      project.folder == null || contains(keys(var.folders), project.folder)
+    ])
+    error_message = "Each non-null project folder must identify a key in folders."
   }
 }
