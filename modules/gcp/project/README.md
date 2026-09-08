@@ -1,8 +1,10 @@
 # Project module
 
-Configures enabled APIs in an existing Google Cloud project. It never creates, owns, or deletes the project itself.
+Configures enabled APIs in an existing Google Cloud project. It never creates,
+owns, or deletes the project itself.
 
-API resources use `disable_on_destroy = false`, so APIs remain enabled if their Terraform configuration is removed or the module is destroyed.
+API resources use `disable_on_destroy = false`, so APIs remain enabled if their
+Terraform configuration is removed or the module is destroyed.
 
 ## Inputs
 

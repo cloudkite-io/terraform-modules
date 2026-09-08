@@ -1,6 +1,8 @@
 # Organization module
 
-Creates top-level Google Cloud folders and projects, and adds explicitly declared organization and folder IAM members. The organization stack is the intended caller.
+Creates top-level Google Cloud folders and projects, and adds explicitly
+declared organization and folder IAM members. The organization stack is the
+intended caller.
 
 ## Behavior
 
@@ -35,21 +37,29 @@ billing account, commonly provided by `roles/billing.admin`. After bootstrap,
 the managed `roles/billing.user` grant supplies
 `billing.resourceAssociations.create` for project association.
 
-This module can optionally manage an organization policy that prevents creation of new projects by organization members.
+This module can optionally manage an organization policy that prevents creation
+of new projects by organization members.
 
 ## Inputs
 
-| Name | Type | Description |
-| --- | --- | --- |
-| `organization_id` | `string` | Required numeric organization ID. |
-| `projects` | `map(object)` | Projects keyed by project ID, with `name`, optional `labels`, and an optional managed `folder` key. |
-| `billing_account_id` | `string` | Optional billing account ID; `null` creates projects without billing. |
-| `folder_creators` | `set(string)` | Optional principals granted Folder Creator on the organization. |
-| `folders` | `map(object)` | Optional top-level folders with display name, deletion protection, and additive IAM memberships. |
-| `organization_iam_members` | `map(set(string))` | Optional additive IAM members grouped by role. |
-| `prevent_project_creation` | `bool` | Optional flag to enforce an organization policy that blocks new project creation. |
-| `project_creators` | `list(string)` | Optional IAM principal strings granted project creation permissions and, when `billing_account_id` is set, billing account association permissions. |
-| `default_labels` | `map(string)` | Default labels applied to all created projects; project-level labels override conflicts. |
+- `organization_id` (`string`): Required numeric organization ID.
+- `projects` (`map(object)`): Projects keyed by project ID, with `name`,
+  optional `labels`, and an optional managed `folder` key.
+- `billing_account_id` (`string`): Optional billing account ID; `null` creates
+  projects without billing.
+- `folder_creators` (`set(string)`): Optional principals granted Folder Creator
+  on the organization.
+- `folders` (`map(object)`): Optional top-level folders with display name,
+  deletion protection, and additive IAM memberships.
+- `organization_iam_members` (`map(set(string))`): Optional additive IAM members
+  grouped by role.
+- `prevent_project_creation` (`bool`): Optional flag to enforce an organization
+  policy that blocks new project creation.
+- `project_creators` (`list(string)`): Optional IAM principal strings granted
+  project creation permissions and, when `billing_account_id` is set, billing
+  account association permissions.
+- `default_labels` (`map(string)`): Default labels applied to all created
+  projects; project-level labels override conflicts.
 
 ## Example `terraform.tfvars`
 
@@ -114,10 +124,9 @@ projects = {
 
 ## Outputs
 
-| Name | Description |
-| --- | --- |
-| `folder_iam_members` | Managed additive folder IAM memberships keyed by folder, role, and member. |
-| `folders` | Managed folder identifiers keyed by input folder key. |
-| `project_folders` | Configured managed-folder placement for each project. |
-| `project_ids` | Created project IDs keyed by input project ID. |
-| `project_numbers` | Created project numbers keyed by input project ID. |
+- `folder_iam_members`: Managed additive folder IAM memberships keyed by folder,
+  role, and member.
+- `folders`: Managed folder identifiers keyed by input folder key.
+- `project_folders`: Configured managed-folder placement for each project.
+- `project_ids`: Created project IDs keyed by input project ID.
+- `project_numbers`: Created project numbers keyed by input project ID.
