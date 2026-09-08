@@ -38,7 +38,6 @@ The following map is required by the gke_nodepools map used in the cloudkite's g
 
 ## License
 
-Please see [LICENSE](https://github.com/cloudkite-io/terraform-modules/blob/master/LICENSE) for how the code in this
-repo is licensed.
+This repository is licensed under the [MIT License](LICENSE).
 
 Copyright &copy; 2019 Cloudkite.io
