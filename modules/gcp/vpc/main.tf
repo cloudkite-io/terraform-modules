@@ -13,16 +13,14 @@ resource "google_compute_subnetwork" "gke-subnetwork" {
   network                  = google_compute_network.network.name
   project                  = var.project
 
-  secondary_ip_range = [
-    {
-      range_name    = "${var.region}-gke-services"
-      ip_cidr_range = "${var.network-prefix}.32.0/19"
-    },
-    {
-      range_name    = "${var.region}-gke-pods"
-      ip_cidr_range = "${var.network-prefix}.128.0/17"
-    }
-  ]
+  secondary_ip_range {
+    range_name    = "${var.region}-gke-services"
+    ip_cidr_range = "${var.network-prefix}.32.0/19"
+  }
+  secondary_ip_range {
+    range_name    = "${var.region}-gke-pods"
+    ip_cidr_range = "${var.network-prefix}.128.0/17"
+  }
 }
 
 resource "google_compute_address" "nat-address" {
