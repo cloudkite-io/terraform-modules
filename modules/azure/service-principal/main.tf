@@ -116,6 +116,30 @@ resource "azuread_service_principal" "this" {
   app_role_assignment_required = var.app_role_assignment_required
 }
 
+# App roles — with app_role_assignment_required = true on the service
+# principal, Entra only issues tokens for this app to principals explicitly
+# assigned one of these roles (an Entra-side allowlist of token consumers).
+resource "random_uuid" "app_role" {
+  for_each = { for key, value in var.app_roles : key => value if value.id == null }
+}
+
+resource "azuread_application_app_role" "this" {
+  for_each             = var.app_roles
+  application_id       = azuread_application.this.id
+  role_id              = coalesce(each.value.id, try(random_uuid.app_role[each.key].result, null))
+  allowed_member_types = each.value.allowed_member_types
+  description          = each.value.description
+  display_name         = each.value.display_name
+  value                = each.value.value
+}
+
+resource "azuread_app_role_assignment" "this" {
+  for_each            = var.app_role_assignments
+  app_role_id         = azuread_application_app_role.this[each.value.app_role_key].role_id
+  principal_object_id = each.value.principal_object_id
+  resource_object_id  = azuread_service_principal.this.object_id
+}
+
 locals {
   # All federation kinds collapse into a single set keyed by "<provider>-<key>".
   # Each provider only differs in how (issuer, subject, audiences) are derived.

@@ -28,3 +28,8 @@ output "client_secret_enabled" {
   description = "Whether a client secret was created for this service principal."
   value       = try(var.client_secret.enabled, false)
 }
+
+output "app_role_ids" {
+  description = "Map of app role key to role ID."
+  value       = { for key, role in azuread_application_app_role.this : key => role.role_id }
+}
