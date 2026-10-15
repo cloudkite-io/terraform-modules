@@ -204,7 +204,6 @@ No modules.
 | ---- | ---- |
 | [azuread_app_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/app_role_assignment) | resource |
 | [azuread_application.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/application) | resource |
-| [azuread_application_app_role.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/application_app_role) | resource |
 | [azuread_application_federated_identity_credential.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/application_federated_identity_credential) | resource |
 | [azuread_application_flexible_federated_identity_credential.this](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/application_flexible_federated_identity_credential) | resource |
 | [azuread_application_password.secret](https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/application_password) | resource |
@@ -217,8 +216,8 @@ No modules.
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_app_role_assignment_required"></a> [app\_role\_assignment\_required](#input\_app\_role\_assignment\_required) | Whether users/groups need explicit app role assignment to sign in to this enterprise app. | `bool` | `false` | no |
-| <a name="input_app_role_assignments"></a> [app\_role\_assignments](#input\_app\_role\_assignments) | Principals (by object id) assigned to this application's app roles.<br/>The map key is arbitrary; `app_role_key` references a key of `app_roles`.<br/>Example: allowlisting a managed identity to request tokens for this app. | <pre>map(object({<br/>    app_role_key        = string<br/>    principal_object_id = string<br/>  }))</pre> | `{}` | no |
-| <a name="input_app_roles"></a> [app\_roles](#input\_app\_roles) | App roles to define on the application. Combine with<br/>`app_role_assignment_required = true` so Entra only issues tokens for this<br/>app to principals explicitly assigned one of these roles — an Entra-side<br/>allowlist of token consumers (e.g. managed identities that may request<br/>tokens for this app as their audience). `id` defaults to a generated UUID<br/>when omitted. | <pre>map(object({<br/>    allowed_member_types = list(string)<br/>    description          = string<br/>    display_name         = string<br/>    value                = optional(string, null)<br/>    id                   = optional(string, null)<br/>  }))</pre> | `{}` | no |
+| <a name="input_app_role_assignments"></a> [app\_role\_assignments](#input\_app\_role\_assignments) | Principals (by object id) assigned to this application's app roles.<br/>The map key is arbitrary; `app_role_key` references a key of `app_roles`<br/>(which is also the role's `value`). Example: allowlisting a managed<br/>identity to request tokens for this app. | <pre>map(object({<br/>    app_role_key        = string<br/>    principal_object_id = string<br/>  }))</pre> | `{}` | no |
+| <a name="input_app_roles"></a> [app\_roles](#input\_app\_roles) | App roles to define on the application. Combine with<br/>`app_role_assignment_required = true` so Entra only issues tokens for this<br/>app to principals explicitly assigned one of these roles — an Entra-side<br/>allowlist of token consumers (e.g. managed identities that may request<br/>tokens for this app as their audience). The map key becomes the role's<br/>`value` (the string that appears in tokens' `roles` claim). `id` defaults<br/>to a generated UUID when omitted. | <pre>map(object({<br/>    allowed_member_types = list(string)<br/>    description          = string<br/>    display_name         = string<br/>    id                   = optional(string, null)<br/>  }))</pre> | `{}` | no |
 | <a name="input_client_secret"></a> [client\_secret](#input\_client\_secret) | Optional rotating client secret (M2M), e.g. for Databricks access.<br/>When `enabled` is true a password is created and rotated every `rotation_days`.<br/>The module exposes the secret as an output; storing it in Key Vault is the caller's responsibility. | <pre>object({<br/>    enabled       = optional(bool, false)<br/>    rotation_days = optional(number, 730)<br/>  })</pre> | `{}` | no |
 | <a name="input_description"></a> [description](#input\_description) | Description of the Azure AD application and service principal. | `string` | `""` | no |
 | <a name="input_display_name"></a> [display\_name](#input\_display\_name) | Display name of the Azure AD application / service principal. Must be unique within the tenant. | `string` | n/a | yes |
@@ -244,7 +243,7 @@ No modules.
 
 | Name | Description |
 | ---- | ----------- |
-| <a name="output_app_role_ids"></a> [app\_role\_ids](#output\_app\_role\_ids) | Map of app role key to role ID. |
+| <a name="output_app_role_ids"></a> [app\_role\_ids](#output\_app\_role\_ids) | Map of app role key (which is also the role `value`) to role ID. |
 | <a name="output_application_id"></a> [application\_id](#output\_application\_id) | The resource ID of the Azure AD application (e.g. /applications/<object-id>). |
 | <a name="output_application_object_id"></a> [application\_object\_id](#output\_application\_object\_id) | The object ID of the Azure AD application. |
 | <a name="output_client_id"></a> [client\_id](#output\_client\_id) | The client ID (application ID) of the service principal. |

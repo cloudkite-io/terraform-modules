@@ -30,6 +30,6 @@ output "client_secret_enabled" {
 }
 
 output "app_role_ids" {
-  description = "Map of app role key to role ID."
-  value       = { for key, role in azuread_application_app_role.this : key => role.role_id }
+  description = "Map of app role key (which is also the role `value`) to role ID."
+  value       = azuread_application.this.app_role_ids
 }
