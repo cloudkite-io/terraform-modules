@@ -98,6 +98,23 @@ resource "azuread_application" "this" {
     }
   }
 
+  # App roles inline (owned by the application resource). Roles are keyed by
+  # the map key, which also becomes the role `value`. With
+  # app_role_assignment_required = true on the service principal, Entra only
+  # issues tokens for this app to principals explicitly assigned one of these
+  # roles (an Entra-side allowlist of token consumers).
+  dynamic "app_role" {
+    for_each = var.app_roles
+    content {
+      allowed_member_types = app_role.value.allowed_member_types
+      description          = app_role.value.description
+      display_name         = app_role.value.display_name
+      enabled              = true
+      id                   = coalesce(app_role.value.id, try(random_uuid.app_role[app_role.key].result, null))
+      value                = app_role.key
+    }
+  }
+
   lifecycle {
     # Keep migration plans stable by ignoring metadata-only churn.
     ignore_changes = [
@@ -116,26 +133,15 @@ resource "azuread_service_principal" "this" {
   app_role_assignment_required = var.app_role_assignment_required
 }
 
-# App roles — with app_role_assignment_required = true on the service
-# principal, Entra only issues tokens for this app to principals explicitly
-# assigned one of these roles (an Entra-side allowlist of token consumers).
+# Role ids must be stable across applies (assignments reference them), so ids
+# are caller-provided or generated once via random_uuid.
 resource "random_uuid" "app_role" {
   for_each = { for key, value in var.app_roles : key => value if value.id == null }
 }
 
-resource "azuread_application_app_role" "this" {
-  for_each             = var.app_roles
-  application_id       = azuread_application.this.id
-  role_id              = coalesce(each.value.id, try(random_uuid.app_role[each.key].result, null))
-  allowed_member_types = each.value.allowed_member_types
-  description          = each.value.description
-  display_name         = each.value.display_name
-  value                = each.value.value
-}
-
 resource "azuread_app_role_assignment" "this" {
   for_each            = var.app_role_assignments
-  app_role_id         = azuread_application_app_role.this[each.value.app_role_key].role_id
+  app_role_id         = azuread_application.this.app_role_ids[each.value.app_role_key]
   principal_object_id = each.value.principal_object_id
   resource_object_id  = azuread_service_principal.this.object_id
 }

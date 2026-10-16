@@ -27,14 +27,14 @@ variable "app_roles" {
     `app_role_assignment_required = true` so Entra only issues tokens for this
     app to principals explicitly assigned one of these roles — an Entra-side
     allowlist of token consumers (e.g. managed identities that may request
-    tokens for this app as their audience). `id` defaults to a generated UUID
-    when omitted.
+    tokens for this app as their audience). The map key becomes the role's
+    `value` (the string that appears in tokens' `roles` claim). `id` defaults
+    to a generated UUID when omitted.
   EOT
   type = map(object({
     allowed_member_types = list(string)
     description          = string
     display_name         = string
-    value                = optional(string, null)
     id                   = optional(string, null)
   }))
   default = {}
@@ -43,8 +43,9 @@ variable "app_roles" {
 variable "app_role_assignments" {
   description = <<-EOT
     Principals (by object id) assigned to this application's app roles.
-    The map key is arbitrary; `app_role_key` references a key of `app_roles`.
-    Example: allowlisting a managed identity to request tokens for this app.
+    The map key is arbitrary; `app_role_key` references a key of `app_roles`
+    (which is also the role's `value`). Example: allowlisting a managed
+    identity to request tokens for this app.
   EOT
   type = map(object({
     app_role_key        = string
